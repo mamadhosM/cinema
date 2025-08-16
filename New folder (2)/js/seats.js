@@ -250,28 +250,44 @@ class SeatSelectionSystem {
         });
     }
 
-    // Generate seats data
+    // Generate seats data with proper layout
     generateSeatsData() {
         this.seatsData = [];
-        const rows = Math.ceil(this.selectedCinema.capacity / 10);
+        const capacity = this.selectedCinema.capacity;
         
-        for (let row = 1; row <= rows; row++) {
-            for (let col = 1; col <= 10; col++) {
-                const seatNumber = (row - 1) * 10 + col;
-                if (seatNumber <= this.selectedCinema.capacity) {
+        // Calculate optimal layout
+        const seatsPerRow = 12; // Standard cinema row
+        const totalRows = Math.ceil(capacity / seatsPerRow);
+        
+        let seatNumber = 1;
+        
+        for (let row = 1; row <= totalRows; row++) {
+            for (let col = 1; col <= seatsPerRow; col++) {
+                if (seatNumber <= capacity) {
+                    // Create seat with proper positioning
                     this.seatsData.push({
                         id: seatNumber,
                         row: row,
                         col: col,
                         isAvailable: true,
-                        isSelected: false
+                        isSelected: false,
+                        seatLabel: this.generateSeatLabel(row, col)
                     });
+                    seatNumber++;
                 }
             }
         }
+        
+        console.log(`Generated ${this.seatsData.length} seats for cinema with capacity ${capacity}`);
     }
 
-    // Render seats
+    // Generate seat label (A1, A2, B1, B2, etc.)
+    generateSeatLabel(row, col) {
+        const rowLetter = String.fromCharCode(64 + row); // A, B, C, etc.
+        return `${rowLetter}${col}`;
+    }
+
+    // Render seats with professional layout
     renderSeats() {
         const seatsContainer = document.getElementById('seatsContainer');
         if (!seatsContainer) return;
@@ -287,17 +303,24 @@ class SeatSelectionSystem {
             seatsByRow[seat.row].push(seat);
         });
 
-        // Create row elements
+        // Create row elements with proper spacing
         Object.keys(seatsByRow).forEach(rowNum => {
             const rowElement = document.createElement('div');
             rowElement.className = 'seat-row';
-            rowElement.innerHTML = `<span class="row-label">ردیف ${rowNum}</span>`;
             
+            // Add row label
+            const rowLabel = document.createElement('span');
+            rowLabel.className = 'row-label';
+            rowLabel.textContent = `ردیف ${String.fromCharCode(64 + parseInt(rowNum))}`;
+            rowElement.appendChild(rowLabel);
+            
+            // Add seats for this row
             seatsByRow[rowNum].forEach(seat => {
                 const seatElement = document.createElement('div');
-                seatElement.className = `seat ${seat.isAvailable ? 'available' : 'occupied'}`;
+                seatElement.className = `seat available`;
                 seatElement.dataset.seatId = seat.id;
-                seatElement.textContent = seat.id;
+                seatElement.dataset.seatLabel = seat.seatLabel;
+                seatElement.textContent = seat.seatLabel;
                 
                 if (seat.isAvailable) {
                     seatElement.addEventListener('click', () => this.toggleSeat(seat.id));
@@ -308,6 +331,8 @@ class SeatSelectionSystem {
             
             seatsContainer.appendChild(rowElement);
         });
+        
+        console.log('Seats rendered successfully');
     }
 
     // Toggle seat selection
@@ -327,6 +352,8 @@ class SeatSelectionSystem {
         this.updateSeatDisplay(seatId);
         this.updateSummary();
         this.updateConfirmButton();
+        
+        console.log(`Seat ${seat.seatLabel} ${seat.isSelected ? 'selected' : 'deselected'}`);
     }
 
     // Update seat display
@@ -335,7 +362,15 @@ class SeatSelectionSystem {
         if (!seatElement) return;
 
         const seat = this.seatsData.find(s => s.id === seatId);
-        seatElement.classList.toggle('selected', seat.isSelected);
+        
+        // Remove all classes and add appropriate one
+        seatElement.classList.remove('available', 'selected', 'occupied');
+        
+        if (seat.isSelected) {
+            seatElement.classList.add('selected');
+        } else {
+            seatElement.classList.add('available');
+        }
     }
 
     // Update booking summary
@@ -349,7 +384,13 @@ class SeatSelectionSystem {
         document.getElementById('summaryCinema').textContent = this.selectedCinema.name;
         document.getElementById('summaryDate').textContent = this.convertToPersianDate(this.selectedSchedule.date);
         document.getElementById('summaryTime').textContent = this.selectedSchedule.time;
-        document.getElementById('summarySeats').textContent = this.selectedSeats.join(', ') || '-';
+        
+        // Show selected seat labels
+        const selectedSeatLabels = this.selectedSeats.map(seatId => {
+            const seat = this.seatsData.find(s => s.id === seatId);
+            return seat ? seat.seatLabel : seatId;
+        });
+        document.getElementById('summarySeats').textContent = selectedSeatLabels.join(', ') || '-';
         document.getElementById('summaryCount').textContent = this.selectedSeats.length;
         
         // Calculate total price
@@ -361,7 +402,7 @@ class SeatSelectionSystem {
             movie: this.selectedMovie.title,
             cinema: this.selectedCinema.name,
             schedule: this.selectedSchedule,
-            seats: this.selectedSeats,
+            seats: selectedSeatLabels,
             totalPrice: totalPrice
         });
     }
@@ -412,7 +453,10 @@ class SeatSelectionSystem {
             movie: this.selectedMovie,
             cinema: this.selectedCinema,
             schedule: this.selectedSchedule,
-            seats: this.selectedSeats,
+            seats: this.selectedSeats.map(seatId => {
+                const seat = this.seatsData.find(s => s.id === seatId);
+                return seat ? seat.seatLabel : seatId;
+            }),
             user: currentUser,
             date: new Date().toISOString(),
             totalPrice: this.selectedSeats.length * this.parsePrice(this.selectedSchedule.price || this.selectedMovie.price),
@@ -422,6 +466,8 @@ class SeatSelectionSystem {
         const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
         bookings.push(booking);
         localStorage.setItem('bookings', JSON.stringify(bookings));
+        
+        console.log('Booking saved:', booking);
     }
 
     // Generate booking code
@@ -484,7 +530,14 @@ class SeatSelectionSystem {
         document.getElementById('confirmationCinema').textContent = this.selectedCinema.name;
         document.getElementById('confirmationDate').textContent = this.convertToPersianDate(this.selectedSchedule.date);
         document.getElementById('confirmationTime').textContent = this.selectedSchedule.time;
-        document.getElementById('confirmationSeats').textContent = this.selectedSeats.join(', ');
+        
+        // Show selected seat labels
+        const selectedSeatLabels = this.selectedSeats.map(seatId => {
+            const seat = this.seatsData.find(s => s.id === seatId);
+            return seat ? seat.seatLabel : seatId;
+        });
+        document.getElementById('confirmationSeats').textContent = selectedSeatLabels.join(', ');
+        
         document.getElementById('confirmationTotal').textContent = `${(this.selectedSeats.length * this.parsePrice(this.selectedSchedule.price || this.selectedMovie.price)).toLocaleString()} تومان`;
 
         // Show confirmation section

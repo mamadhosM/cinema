@@ -12,8 +12,7 @@
       "year": 2024,
       "director": "اصغر فرهادی",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-01-15T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 2,
@@ -27,8 +26,7 @@
       "year": 2024,
       "director": "محمود کلاری",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-01-20T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 3,
@@ -42,8 +40,7 @@
       "year": 2024,
       "director": "پرویز شهبازی",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-01-25T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 4,
@@ -57,8 +54,7 @@
       "year": 2024,
       "director": "علی حاتمی",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-02-01T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 5,
@@ -72,8 +68,7 @@
       "year": 2024,
       "director": "مهدی مهدویان",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-02-05T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 6,
@@ -87,8 +82,7 @@
       "year": 2024,
       "director": "بهرام بیضایی",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-02-10T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 7,
@@ -102,8 +96,7 @@
       "year": 2024,
       "director": "ابراهیم حاتمی‌کیا",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-02-15T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 8,
@@ -117,8 +110,7 @@
       "year": 2024,
       "director": "محمدرضا اصلانی",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-02-20T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 9,
@@ -132,8 +124,7 @@
       "year": 2024,
       "director": "رضا میرکریمی",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-02-25T10:00:00.000Z"
+      "isActive": true
     },
     {
       "id": 10,
@@ -147,8 +138,7 @@
       "year": 2024,
       "director": "علی رضا داوودنژاد",
       "language": "فارسی",
-      "isActive": true,
-      "createdAt": "2024-03-01T10:00:00.000Z"
+      "isActive": true
     }
   ],
   "cinemas": [
@@ -157,36 +147,891 @@
       "name": "سینما الف",
       "address": "معالی آباد مجتمع الف",
       "phone": "071-36362500",
-      "email": "central@cinema-iran.ir",
-      "capacity": 30,
-      "features": ["صندلی vip", "صدای دالبی", "کافه", "پارکینگ"],
-      "managerId": 3,
-      "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
+      "capacity": 120,
+      "features": ["صندلی VIP", "صدای دالبی", "کافه", "پارکینگ"]
     },
     {
       "id": 2,
       "name": "سینما سعدی",
       "address": "خیابان قصرالدشت، چهارراه سینما سعدی",
       "phone": "071-32330791",
-      "email": "saadi@cinema-iran.ir",
-      "capacity": 40,
-      "features": ["صندلی راحت","صدای خوب", "بوفه"],
-      "managerId": 4,
-      "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
+      "capacity": 180,
+      "features": ["صندلی راحت", "صدای خوب", "بوفه"]
     },
     {
       "id": 3,
-      "name": "سینما هنر شهر افتاب",
+      "name": "سینما هنر شهر آفتاب",
       "address": "گلستان مجتمع خلیج فارس",
       "phone": "071-32270777",
-      "email": "aftab@cinema-iran.ir",
-      "capacity": 60,
-      "features": ["صدای دالبی", "پارکینگ", "فروشگاه","کافه","صندلی vip","وای فای رایگان"],
-      "managerId": 5,
-      "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
+      "capacity": 250,
+      "features": ["صدای دالبی", "پارکینگ", "فروشگاه", "کافه", "صندلی VIP", "وای‌فای رایگان"]
+    }
+  ],
+  "schedules": [
+    {
+      "id": 1,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "14:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "17:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "20:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "14:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "17:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "20:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "14:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "17:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 9,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "20:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 10,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-26",
+      "time": "14:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 11,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-26",
+      "time": "17:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 12,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-26",
+      "time": "20:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 13,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-27",
+      "time": "14:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 14,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-27",
+      "time": "17:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 15,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-27",
+      "time": "20:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 16,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-28",
+      "time": "14:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 17,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-28",
+      "time": "17:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 18,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-28",
+      "time": "20:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 19,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-29",
+      "time": "14:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 20,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-29",
+      "time": "17:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 21,
+      "movieId": 1,
+      "cinemaId": 1,
+      "date": "2024-12-29",
+      "time": "20:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 22,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "15:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 23,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "18:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 24,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "21:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 25,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "15:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 26,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "18:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 27,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "21:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 28,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "15:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 29,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "18:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 30,
+      "movieId": 2,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "21:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 31,
+      "movieId": 3,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "16:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 32,
+      "movieId": 3,
+      "cinemaId": 1,
+      "date": "2024-12-23",
+      "time": "19:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 33,
+      "movieId": 3,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "16:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 34,
+      "movieId": 3,
+      "cinemaId": 1,
+      "date": "2024-12-24",
+      "time": "19:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 35,
+      "movieId": 3,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "16:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 36,
+      "movieId": 3,
+      "cinemaId": 1,
+      "date": "2024-12-25",
+      "time": "19:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 37,
+      "movieId": 1,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "14:30",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 38,
+      "movieId": 1,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "17:30",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 39,
+      "movieId": 1,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "20:30",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 40,
+      "movieId": 1,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "14:30",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 41,
+      "movieId": 1,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "17:30",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 42,
+      "movieId": 1,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "20:30",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 43,
+      "movieId": 2,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "15:00",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 44,
+      "movieId": 2,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "18:00",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 45,
+      "movieId": 2,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "21:00",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 46,
+      "movieId": 2,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "15:00",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 47,
+      "movieId": 2,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "18:00",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 48,
+      "movieId": 2,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "21:00",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 49,
+      "movieId": 3,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "16:30",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 50,
+      "movieId": 3,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "19:30",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 51,
+      "movieId": 3,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "16:30",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 52,
+      "movieId": 3,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "19:30",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 53,
+      "movieId": 4,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "14:00",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 54,
+      "movieId": 4,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "17:00",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 55,
+      "movieId": 4,
+      "cinemaId": 2,
+      "date": "2024-12-23",
+      "time": "20:00",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 56,
+      "movieId": 4,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "14:00",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 57,
+      "movieId": 4,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "17:00",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 58,
+      "movieId": 4,
+      "cinemaId": 2,
+      "date": "2024-12-24",
+      "time": "20:00",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 59,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "13:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 60,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "16:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 61,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "19:00",
+      "price": "120,000",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 62,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "22:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 63,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "13:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 64,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "16:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 65,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "19:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 66,
+      "movieId": 1,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "22:00",
+      "price": "120,000",
+      "isActive": true
+    },
+    {
+      "id": 67,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "14:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 68,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "17:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 69,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "20:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 70,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "23:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 71,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "14:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 72,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "17:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 73,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "20:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 74,
+      "movieId": 2,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "23:30",
+      "price": "150,000",
+      "isActive": true
+    },
+    {
+      "id": 75,
+      "movieId": 3,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "15:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 76,
+      "movieId": 3,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "18:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 77,
+      "movieId": 3,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "21:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 78,
+      "movieId": 3,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "15:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 79,
+      "movieId": 3,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "18:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 80,
+      "movieId": 3,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "21:00",
+      "price": "100,000",
+      "isActive": true
+    },
+    {
+      "id": 81,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "13:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 82,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "16:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 83,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "19:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 84,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "22:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 85,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "13:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 86,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "16:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 87,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "19:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 88,
+      "movieId": 4,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "22:30",
+      "price": "110,000",
+      "isActive": true
+    },
+    {
+      "id": 89,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "12:00",
+      "price": "95,000",
+      "isActive": true
+    },
+    {
+      "id": 90,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "15:00",
+      "price": "95,000",
+      "isActive": true
+    },
+    {
+      "id": 91,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "18:00",
+      "price": "95,000",
+      "isActive": true
+    },
+    {
+      "id": 92,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-23",
+      "time": "21:00",
+      "price": "95,000",
+      "isActive": true
+    },
+    {
+      "id": 93,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "12:00",
+      "price": "95,000",
+      "isActive": true
+    },
+    {
+      "id": 94,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "15:00",
+      "price": "95,000",
+      "isActive": true
+    },
+    {
+      "id": 95,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "18:00",
+      "price": "95,000",
+      "isActive": true
+    },
+    {
+      "id": 96,
+      "movieId": 5,
+      "cinemaId": 3,
+      "date": "2024-12-24",
+      "time": "21:00",
+      "price": "95,000",
+      "isActive": true
     }
   ],
   "users": [
@@ -200,304 +1045,21 @@
       "password": "admin123",
       "role": "admin",
       "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
+      "createdAt": "2024-12-23T10:00:00.000Z"
     },
     {
       "id": 2,
-      "username": "representative",
-      "email": "rep@cinema-iran.ir",
-      "firstName": "نماینده",
-      "lastName": "عمومی",
+      "username": "user",
+      "email": "user@cinema-iran.ir",
+      "firstName": "کاربر",
+      "lastName": "عادی",
       "phone": "09187654321",
-      "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-      "role": "representative",
-      "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
-    },
-    {
-      "id": 3,
-      "username": "cinema1_manager",
-      "email": "manager1@cinema-iran.ir",
-      "firstName": "احمد",
-      "lastName": "محمدی",
-      "phone": "09111111111",
-      "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-      "role": "cinema_manager",
-      "cinemaId": 1,
-      "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
-    },
-    {
-      "id": 4,
-      "username": "cinema2_manager",
-      "email": "manager2@cinema-iran.ir",
-      "firstName": "فاطمه",
-      "lastName": "احمدی",
-      "phone": "09122222222",
-      "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-      "role": "cinema_manager",
-      "cinemaId": 2,
-      "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
-    },
-    {
-      "id": 5,
-      "username": "cinema3_manager",
-      "email": "manager3@cinema-iran.ir",
-      "firstName": "علی",
-      "lastName": "رضایی",
-      "phone": "09133333333",
-      "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-      "role": "cinema_manager",
-      "cinemaId": 3,
-      "isActive": true,
-      "createdAt": "2024-01-01T10:00:00.000Z"
-    }
-  ],
-  "schedules": [
-    {
-      "id": 1,
-      "cinemaId": 1,
-      "movieId": 1,
-      "date": "2024-12-20",
-      "time": "18:00",
-      "price": "120,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 2,
-      "cinemaId": 1,
-      "movieId": 2,
-      "date": "2024-12-20",
-      "time": "20:30",
-      "price": "150,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 3,
-      "cinemaId": 2,
-      "movieId": 3,
-      "date": "2024-12-20",
-      "time": "19:00",
-      "price": "100,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 4,
-      "cinemaId": 2,
-      "movieId": 4,
-      "date": "2024-12-20",
-      "time": "21:30",
-      "price": "110,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 5,
-      "cinemaId": 3,
-      "movieId": 5,
-      "date": "2024-12-20",
-      "time": "18:30",
-      "price": "95,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 6,
-      "cinemaId": 1,
-      "movieId": 1,
-      "date": "2024-12-21",
-      "time": "16:00",
-      "price": "120,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 7,
-      "cinemaId": 1,
-      "movieId": 1,
-      "date": "2024-12-21",
-      "time": "18:30",
-      "price": "120,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 8,
-      "cinemaId": 1,
-      "movieId": 2,
-      "date": "2024-12-21",
-      "time": "21:00",
-      "price": "150,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 9,
-      "cinemaId": 2,
-      "movieId": 3,
-      "date": "2024-12-21",
-      "time": "17:00",
-      "price": "100,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 10,
-      "cinemaId": 2,
-      "movieId": 3,
-      "date": "2024-12-21",
-      "time": "19:30",
-      "price": "100,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 11,
-      "cinemaId": 2,
-      "movieId": 4,
-      "date": "2024-12-21",
-      "time": "22:00",
-      "price": "110,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 12,
-      "cinemaId": 3,
-      "movieId": 5,
-      "date": "2024-12-21",
-      "time": "16:30",
-      "price": "95,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 13,
-      "cinemaId": 3,
-      "movieId": 5,
-      "date": "2024-12-21",
-      "time": "19:00",
-      "price": "95,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 14,
-      "cinemaId": 1,
-      "movieId": 6,
-      "date": "2024-12-22",
-      "time": "17:00",
-      "price": "130,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 15,
-      "cinemaId": 1,
-      "movieId": 6,
-      "date": "2024-12-22",
-      "time": "19:30",
-      "price": "130,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 16,
-      "cinemaId": 2,
-      "movieId": 7,
-      "date": "2024-12-22",
-      "time": "18:00",
-      "price": "140,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 17,
-      "cinemaId": 2,
-      "movieId": 7,
-      "date": "2024-12-22",
-      "time": "20:30",
-      "price": "140,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 18,
-      "cinemaId": 3,
-      "movieId": 8,
-      "date": "2024-12-22",
-      "time": "17:30",
-      "price": "105,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    },
-    {
-      "id": 19,
-      "cinemaId": 3,
-      "movieId": 8,
-      "date": "2024-12-22",
-      "time": "20:00",
-      "price": "105,000",
-      "isActive": true,
-      "createdAt": "2024-12-19T10:00:00.000Z"
-    }
-  ],
-  "bookings": [
-    {
-      "id": 1,
-      "code": "CIN20241219001",
-      "cinemaId": 1,
-      "movieId": 1,
-      "scheduleId": 1,
-      "userId": 6,
-      "seats": ["A1", "A2"],
-      "totalPrice": 240000,
-      "status": "confirmed",
-      "date": "2024-12-19T15:00:00.000Z",
-      "createdAt": "2024-12-19T15:00:00.000Z"
-    },
-    {
-      "id": 2,
-      "code": "CIN20241219002",
-      "cinemaId": 2,
-      "movieId": 3,
-      "scheduleId": 3,
-      "userId": 7,
-      "seats": ["B3"],
-      "totalPrice": 100000,
-      "status": "confirmed",
-      "date": "2024-12-19T16:00:00.000Z",
-      "createdAt": "2024-12-19T16:00:00.000Z"
-    }
-  ],
-  "sampleUsers": [
-    {
-      "id": 6,
-      "username": "user1",
-      "email": "user1@example.com",
-      "firstName": "رضا",
-      "lastName": "کریمی",
-      "phone": "09144444444",
-      "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+      "password": "user123",
       "role": "user",
       "isActive": true,
-      "createdAt": "2024-01-15T10:00:00.000Z"
-    },
-    {
-      "id": 7,
-      "username": "user2",
-      "email": "user2@example.com",
-      "firstName": "مریم",
-      "lastName": "احمدی",
-      "phone": "09155555555",
-      "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-      "role": "user",
-      "isActive": true,
-      "createdAt": "2024-01-20T10:00:00.000Z"
+      "createdAt": "2024-12-23T10:00:00.000Z"
     }
-  ]
+  ],
+  "sampleUsers": [],
+  "bookings": []
 }
