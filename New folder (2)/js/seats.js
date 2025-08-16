@@ -1,8 +1,9 @@
-// Seat selection system
+// Seat selection and booking system
 class SeatSelectionSystem {
     constructor() {
         this.selectedMovie = null;
         this.selectedCinema = null;
+        this.selectedSchedule = null;
         this.selectedSeats = [];
         this.seatsData = [];
         this.init();
@@ -10,41 +11,37 @@ class SeatSelectionSystem {
 
     // Initialize the system
     init() {
-        this.loadMovieData();
+        this.loadSelectedMovie();
         this.loadCinemas();
         this.setupEventListeners();
-        this.updateUserInfo();
-        this.updateConfirmButton();
+        this.checkUserAuth();
     }
 
-    // Load movie data from localStorage
-    loadMovieData() {
-        const movieData = localStorage.getItem('selectedMovie');
-        if (movieData) {
-            this.selectedMovie = JSON.parse(movieData);
-            this.displayMovieInfo();
-            console.log('Movie loaded from localStorage:', this.selectedMovie);
-        } else {
-            // Try to get movie from URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const movieId = urlParams.get('movieId');
-            
-            if (movieId) {
-                const allMovies = JSON.parse(localStorage.getItem('movies') || '[]');
-                this.selectedMovie = allMovies.find(m => m.id === parseInt(movieId));
-                if (this.selectedMovie) {
-                    localStorage.setItem('selectedMovie', JSON.stringify(this.selectedMovie));
-                    this.displayMovieInfo();
-                    console.log('Movie loaded from URL parameters:', this.selectedMovie);
-                }
-            }
-            
-            if (!this.selectedMovie) {
-                // Redirect to home if no movie selected
-                console.log('No movie selected, redirecting to home');
-                window.location.href = 'index.html';
-            }
+    // Check user authentication
+    checkUserAuth() {
+        const user = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
+        if (!user) {
+            showNotification('❌ برای رزرو صندلی ابتدا وارد شوید', 'error');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+            return;
         }
+    }
+
+    // Load selected movie from localStorage
+    loadSelectedMovie() {
+        const selectedMovie = localStorage.getItem('selectedMovie');
+        if (!selectedMovie) {
+            showNotification('❌ فیلمی انتخاب نشده است', 'error');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+            return;
+        }
+
+        this.selectedMovie = JSON.parse(selectedMovie);
+        this.displayMovieInfo();
     }
 
     // Load cinemas from localStorage
@@ -55,49 +52,47 @@ class SeatSelectionSystem {
 
     // Display movie information
     displayMovieInfo() {
-        if (!this.selectedMovie) return;
-
-        document.getElementById('movieImage').textContent = this.selectedMovie.image;
-        document.getElementById('movieTitle').textContent = this.selectedMovie.title;
-        document.getElementById('movieGenre').textContent = this.selectedMovie.genre;
-        document.getElementById('movieDuration').textContent = this.selectedMovie.duration;
-        document.getElementById('movieRating').textContent = `${this.selectedMovie.rating}/5`;
-        document.getElementById('movieDescription').textContent = this.selectedMovie.description;
-        document.getElementById('moviePrice').textContent = `${this.selectedMovie.price} تومان`;
+        const movieInfo = document.getElementById('movieInfo');
+        if (movieInfo && this.selectedMovie) {
+            movieInfo.innerHTML = `
+                <div class="movie-image">${this.selectedMovie.image}</div>
+                <div class="movie-details">
+                    <h3>${this.selectedMovie.title}</h3>
+                    <p class="genre">${this.selectedMovie.genre}</p>
+                    <p class="duration">${this.selectedMovie.duration}</p>
+                    <p class="rating">⭐ ${this.selectedMovie.rating}/5</p>
+                </div>
+            `;
+        }
     }
 
-    // Display cinemas
+    // Display available cinemas
     displayCinemas(cinemas) {
         const cinemasGrid = document.getElementById('cinemasGrid');
         if (!cinemasGrid) return;
 
-        cinemasGrid.innerHTML = '';
-
-        cinemas.forEach(cinema => {
-            const cinemaCard = document.createElement('div');
-            cinemaCard.className = 'cinema-card';
-            cinemaCard.innerHTML = `
+        cinemasGrid.innerHTML = cinemas.map(cinema => `
+            <div class="cinema-card" onclick="selectCinema(${cinema.id})">
                 <div class="cinema-header">
                     <h3>${cinema.name}</h3>
-                    <span class="cinema-capacity">${cinema.capacity} صندلی</span>
+                    <span class="cinema-rating">⭐ 4.5</span>
                 </div>
-                <div class="cinema-details">
+                <div class="cinema-info">
                     <p><i class="fas fa-map-marker-alt"></i> ${cinema.address}</p>
                     <p><i class="fas fa-phone"></i> ${cinema.phone}</p>
-                    <div class="cinema-features">
-                        ${cinema.features.map(feature => `<span>${feature}</span>`).join('')}
-                    </div>
+                    <p><i class="fas fa-users"></i> ظرفیت: ${cinema.capacity} صندلی</p>
                 </div>
-                <button class="btn btn-primary" onclick="selectCinema(${cinema.id})">
-                    <i class="fas fa-check"></i>
+                <div class="cinema-features">
+                    ${cinema.features.map(feature => `<span class="feature">${feature}</span>`).join('')}
+                </div>
+                <button class="select-cinema-btn">
                     انتخاب این سینما
                 </button>
-            `;
-            cinemasGrid.appendChild(cinemaCard);
-        });
+            </div>
+        `).join('');
     }
 
-    // Select cinema and show seats
+    // Select cinema and show schedules
     selectCinema(cinemaId) {
         const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
         this.selectedCinema = cinemas.find(c => c.id === cinemaId);
@@ -106,72 +101,131 @@ class SeatSelectionSystem {
 
         console.log(`Cinema ${cinemaId} selected:`, this.selectedCinema);
         
-        // Show available movies for this cinema
-        this.showAvailableMoviesForCinema(cinemaId);
+        // Show schedules for this cinema and movie
+        this.showSchedulesForCinema(cinemaId);
     }
-    
-    // Show movie selection modal
-    showMovieSelection(movies) {
-        const modal = document.createElement('div');
-        modal.className = 'modal movie-selection-modal';
-        modal.style.display = 'block';
+
+    // Show schedules for selected cinema and movie
+    showSchedulesForCinema(cinemaId) {
+        const schedules = JSON.parse(localStorage.getItem('schedules')) || [];
+        const movieId = this.selectedMovie.id;
         
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>انتخاب فیلم</h2>
-                    <p>فیلم مورد نظر خود را انتخاب کنید</p>
-                </div>
-                <div class="modal-body">
-                    <div class="movies-grid">
-                        ${movies.map(movie => `
-                            <div class="movie-card" onclick="selectMovieForCinema(${movie.id})">
-                                <div class="movie-image">${movie.image}</div>
-                                <div class="movie-info">
-                                    <h3>${movie.title}</h3>
-                                    <p class="movie-genre">${movie.genre}</p>
-                                    <p class="movie-duration">${movie.duration}</p>
-                                    <p class="movie-rating">⭐ ${movie.rating}/5</p>
-                                    <p class="movie-price">${movie.price} تومان</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
+        // Filter schedules for this cinema and movie
+        const availableSchedules = schedules.filter(schedule => 
+            schedule.cinemaId == cinemaId && 
+            schedule.movieId == movieId && 
+            schedule.isActive
+        );
+        
+        if (availableSchedules.length === 0) {
+            // No schedules available
+            this.showNoSchedulesMessage();
+            return;
+        }
+        
+        // Display schedules
+        this.displaySchedules(availableSchedules);
+        
+        // Show schedule selection section
+        document.getElementById('scheduleSelectionSection').style.display = 'block';
+    }
+
+    // Show message when no schedules are available
+    showNoSchedulesMessage() {
+        const cinemasGrid = document.getElementById('cinemasGrid');
+        const message = document.createElement('div');
+        message.className = 'no-schedules-message';
+        message.innerHTML = `
+            <div class="message-content">
+                <i class="fas fa-calendar-times"></i>
+                <h3>سانسی برای این فیلم در این سینما موجود نیست</h3>
+                <p>لطفاً سینمای دیگری انتخاب کنید</p>
             </div>
         `;
         
-        document.body.appendChild(modal);
+        cinemasGrid.appendChild(message);
+    }
+
+    // Display available schedules
+    displaySchedules(schedules) {
+        const scheduleGrid = document.getElementById('scheduleGrid');
+        if (!scheduleGrid) return;
         
-        // Close modal when clicking outside
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-            }
+        scheduleGrid.innerHTML = '';
+        
+        // Group schedules by date
+        const schedulesByDate = this.groupSchedulesByDate(schedules);
+        
+        Object.keys(schedulesByDate).forEach(date => {
+            const dateSchedules = schedulesByDate[date];
+            const dateCard = document.createElement('div');
+            dateCard.className = 'date-card';
+            
+            const persianDate = this.convertToPersianDate(date);
+            
+            dateCard.innerHTML = `
+                <div class="date-header">
+                    <h3>${persianDate}</h3>
+                </div>
+                <div class="time-slots">
+                    ${dateSchedules.map(schedule => `
+                        <button class="time-slot" onclick="selectSchedule(${schedule.id})">
+                            <span class="time">${schedule.time}</span>
+                            <span class="price">${schedule.price || this.selectedMovie.price} تومان</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+            
+            scheduleGrid.appendChild(dateCard);
         });
     }
-    
-    // Select movie and proceed to seat selection
-    selectMovieForCinema(movieId) {
-        const allMovies = JSON.parse(localStorage.getItem('movies') || '[]');
-        this.selectedMovie = allMovies.find(m => m.id === movieId);
+
+    // Group schedules by date
+    groupSchedulesByDate(schedules) {
+        const grouped = {};
+        schedules.forEach(schedule => {
+            const date = schedule.date;
+            if (!grouped[date]) {
+                grouped[date] = [];
+            }
+            grouped[date].push(schedule);
+        });
+        return grouped;
+    }
+
+    // Convert date to Persian format
+    convertToPersianDate(dateString) {
+        const date = new Date(dateString);
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        return date.toLocaleDateString('fa-IR', options);
+    }
+
+    // Select schedule and proceed to seat selection
+    selectSchedule(scheduleId) {
+        const schedules = JSON.parse(localStorage.getItem('schedules')) || [];
+        this.selectedSchedule = schedules.find(s => s.id === scheduleId);
         
-        // Remove movie selection modal
-        const modal = document.querySelector('.movie-selection-modal');
-        if (modal) {
-            document.body.removeChild(modal);
-        }
+        if (!this.selectedSchedule) return;
+        
+        console.log('Schedule selected:', this.selectedSchedule);
+        
+        // Hide schedule selection, show seat selection
+        document.getElementById('scheduleSelectionSection').style.display = 'none';
         
         // Proceed to seat selection
         this.proceedToSeatSelection();
-        
-        console.log('Movie selected for cinema:', this.selectedMovie);
     }
-    
-    // Proceed to seat selection after movie selection
+
+    // Proceed to seat selection
     proceedToSeatSelection() {
-        // Hide cinema selection, show seat selection
-        document.querySelector('.cinema-selection-section').style.display = 'none';
+        // Hide schedule selection, show seat selection
+        document.getElementById('scheduleSelectionSection').style.display = 'none';
         document.getElementById('seatSelectionSection').style.display = 'block';
         document.getElementById('bookingSummarySection').style.display = 'block';
 
@@ -191,139 +245,169 @@ class SeatSelectionSystem {
         
         console.log('Proceeding to seat selection with:', {
             movie: this.selectedMovie,
-            cinema: this.selectedCinema
+            cinema: this.selectedCinema,
+            schedule: this.selectedSchedule
         });
     }
 
-    // Generate seats data based on cinema capacity
+    // Generate seats data with proper layout
     generateSeatsData() {
+        this.seatsData = [];
         const capacity = this.selectedCinema.capacity;
-        let rows, cols;
         
-        // Calculate optimal grid layout
-        if (capacity <= 30) {
-            rows = 6;
-            cols = 5;
-        } else if (capacity <= 40) {
-            rows = 8;
-            cols = 5;
-        } else {
-            rows = 10;
-            cols = 6;
-        }
-
-        const seats = [];
-        const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-
-        for (let row = 0; row < rows; row++) {
-            for (let col = 1; col <= cols; col++) {
-                const seatNumber = `${rowLetters[row]}${col}`;
-                const isVip = (row === 0 || row === 1) && (col >= 2 && col <= cols - 1);
-                const isOccupied = Math.random() < 0.3; // 30% chance of being occupied
-
-                seats.push({
-                    id: seatNumber,
-                    row: rowLetters[row],
-                    col: col,
-                    isVip: isVip,
-                    isOccupied: isOccupied,
-                    isSelected: false
-                });
+        // Calculate optimal layout
+        const seatsPerRow = 12; // Standard cinema row
+        const totalRows = Math.ceil(capacity / seatsPerRow);
+        
+        let seatNumber = 1;
+        
+        for (let row = 1; row <= totalRows; row++) {
+            for (let col = 1; col <= seatsPerRow; col++) {
+                if (seatNumber <= capacity) {
+                    // Create seat with proper positioning
+                    this.seatsData.push({
+                        id: seatNumber,
+                        row: row,
+                        col: col,
+                        isAvailable: true,
+                        isSelected: false,
+                        seatLabel: this.generateSeatLabel(row, col)
+                    });
+                    seatNumber++;
+                }
             }
         }
-
-        this.seatsData = seats;
+        
+        console.log(`Generated ${this.seatsData.length} seats for cinema with capacity ${capacity}`);
     }
 
-    // Render seats grid
+    // Generate seat label (A1, A2, B1, B2, etc.)
+    generateSeatLabel(row, col) {
+        const rowLetter = String.fromCharCode(64 + row); // A, B, C, etc.
+        return `${rowLetter}${col}`;
+    }
+
+    // Render seats with professional layout
     renderSeats() {
-        const seatsGrid = document.getElementById('seatsGrid');
-        if (!seatsGrid) return;
+        const seatsContainer = document.getElementById('seatsContainer');
+        if (!seatsContainer) return;
 
-        seatsGrid.innerHTML = '';
-
+        seatsContainer.innerHTML = '';
+        
+        // Group seats by row
+        const seatsByRow = {};
         this.seatsData.forEach(seat => {
-            const seatElement = document.createElement('div');
-            seatElement.className = `seat-grid-item ${this.getSeatClass(seat)}`;
-            seatElement.setAttribute('data-seat', seat.id);
-            seatElement.setAttribute('data-seat-id', seat.id);
-            
-            if (!seat.isOccupied) {
-                seatElement.addEventListener('click', () => this.toggleSeat(seat.id));
+            if (!seatsByRow[seat.row]) {
+                seatsByRow[seat.row] = [];
             }
-
-            seatsGrid.appendChild(seatElement);
+            seatsByRow[seat.row].push(seat);
         });
-    }
 
-    // Get seat CSS class
-    getSeatClass(seat) {
-        if (seat.isOccupied) return 'occupied';
-        if (seat.isSelected) return 'selected';
-        if (seat.isVip) return 'vip';
-        return 'available';
+        // Create row elements with proper spacing
+        Object.keys(seatsByRow).forEach(rowNum => {
+            const rowElement = document.createElement('div');
+            rowElement.className = 'seat-row';
+            
+            // Add row label
+            const rowLabel = document.createElement('span');
+            rowLabel.className = 'row-label';
+            rowLabel.textContent = `ردیف ${String.fromCharCode(64 + parseInt(rowNum))}`;
+            rowElement.appendChild(rowLabel);
+            
+            // Add seats for this row
+            seatsByRow[rowNum].forEach(seat => {
+                const seatElement = document.createElement('div');
+                seatElement.className = `seat available`;
+                seatElement.dataset.seatId = seat.id;
+                seatElement.dataset.seatLabel = seat.seatLabel;
+                seatElement.textContent = seat.seatLabel;
+                
+                if (seat.isAvailable) {
+                    seatElement.addEventListener('click', () => this.toggleSeat(seat.id));
+                }
+                
+                rowElement.appendChild(seatElement);
+            });
+            
+            seatsContainer.appendChild(rowElement);
+        });
+        
+        console.log('Seats rendered successfully');
     }
 
     // Toggle seat selection
     toggleSeat(seatId) {
         const seat = this.seatsData.find(s => s.id === seatId);
-        if (!seat || seat.isOccupied) return;
+        if (!seat || !seat.isAvailable) return;
 
+        seat.isSelected = !seat.isSelected;
+        
         if (seat.isSelected) {
-            // Deselect seat
-            seat.isSelected = false;
-            this.selectedSeats = this.selectedSeats.filter(id => id !== seatId);
-        } else {
-            // Select seat
-            seat.isSelected = true;
             this.selectedSeats.push(seatId);
+        } else {
+            this.selectedSeats = this.selectedSeats.filter(id => id !== seatId);
         }
 
         // Update seat display
-        this.renderSeats();
-        
-        // Update summary and confirm button
+        this.updateSeatDisplay(seatId);
         this.updateSummary();
         this.updateConfirmButton();
         
-        console.log('Seat toggled:', {
-            seatId,
-            isSelected: seat.isSelected,
-            totalSelected: this.selectedSeats.length
-        });
+        console.log(`Seat ${seat.seatLabel} ${seat.isSelected ? 'selected' : 'deselected'}`);
+    }
+
+    // Update seat display
+    updateSeatDisplay(seatId) {
+        const seatElement = document.querySelector(`[data-seat-id="${seatId}"]`);
+        if (!seatElement) return;
+
+        const seat = this.seatsData.find(s => s.id === seatId);
+        
+        // Remove all classes and add appropriate one
+        seatElement.classList.remove('available', 'selected', 'occupied');
+        
+        if (seat.isSelected) {
+            seatElement.classList.add('selected');
+        } else {
+            seatElement.classList.add('available');
+        }
     }
 
     // Update booking summary
     updateSummary() {
-        if (!this.selectedMovie || !this.selectedCinema) {
-            console.log('Cannot update summary: movie or cinema not selected');
+        if (!this.selectedMovie || !this.selectedCinema || !this.selectedSchedule) {
+            console.log('Cannot update summary: movie, cinema, or schedule not selected');
             return;
         }
-        
-        const currentDate = new Date();
-        const tomorrow = new Date(currentDate);
-        tomorrow.setDate(currentDate.getDate() + 1);
 
         document.getElementById('summaryMovie').textContent = this.selectedMovie.title;
         document.getElementById('summaryCinema').textContent = this.selectedCinema.name;
-        document.getElementById('summaryDate').textContent = this.formatDate(tomorrow);
-        document.getElementById('summaryTime').textContent = '20:00';
-        document.getElementById('summarySeats').textContent = this.selectedSeats.join(', ') || '-';
+        document.getElementById('summaryDate').textContent = this.convertToPersianDate(this.selectedSchedule.date);
+        document.getElementById('summaryTime').textContent = this.selectedSchedule.time;
+        
+        // Show selected seat labels
+        const selectedSeatLabels = this.selectedSeats.map(seatId => {
+            const seat = this.seatsData.find(s => s.id === seatId);
+            return seat ? seat.seatLabel : seatId;
+        });
+        document.getElementById('summarySeats').textContent = selectedSeatLabels.join(', ') || '-';
+        document.getElementById('summaryCount').textContent = this.selectedSeats.length;
         
         // Calculate total price
-        const pricePerSeat = this.parsePrice(this.selectedMovie.price);
+        const pricePerSeat = this.parsePrice(this.selectedSchedule.price || this.selectedMovie.price);
         const totalPrice = this.selectedSeats.length * pricePerSeat;
-        document.getElementById('summaryPrice').textContent = `${totalPrice.toLocaleString()} تومان`;
+        document.getElementById('summaryTotal').textContent = `${totalPrice.toLocaleString()} تومان`;
         
         console.log('Summary updated:', {
             movie: this.selectedMovie.title,
             cinema: this.selectedCinema.name,
-            seats: this.selectedSeats,
+            schedule: this.selectedSchedule,
+            seats: selectedSeatLabels,
             totalPrice: totalPrice
         });
     }
 
-    // Update confirm button state
+    // Update confirm button
     updateConfirmButton() {
         const confirmBtn = document.getElementById('confirmBtn');
         if (!confirmBtn) return;
@@ -331,8 +415,9 @@ class SeatSelectionSystem {
         const hasSeats = this.selectedSeats.length > 0;
         const hasMovie = this.selectedMovie !== null;
         const hasCinema = this.selectedCinema !== null;
+        const hasSchedule = this.selectedSchedule !== null;
         
-        if (hasSeats && hasMovie && hasCinema) {
+        if (hasSeats && hasMovie && hasCinema && hasSchedule) {
             confirmBtn.disabled = false;
             confirmBtn.textContent = `تایید رزرو (${this.selectedSeats.length} صندلی)`;
             confirmBtn.classList.add('btn-primary');
@@ -348,58 +433,135 @@ class SeatSelectionSystem {
             hasSeats,
             hasMovie,
             hasCinema,
+            hasSchedule,
             selectedSeats: this.selectedSeats.length
         });
     }
 
     // Parse price string to number
     parsePrice(priceString) {
-        return parseInt(priceString.replace(/,/g, ''));
+        if (typeof priceString === 'number') return priceString;
+        return parseInt(priceString.replace(/[^\d]/g, '')) || 0;
     }
 
-    // Format price number
-    formatPrice(price) {
-        return price.toLocaleString('fa-IR');
-    }
-
-    // Format date
-    formatDate(date) {
-        const options = { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            weekday: 'long'
+    // Save booking to localStorage
+    saveBooking(bookingCode) {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
+        const booking = {
+            id: Date.now(),
+            code: bookingCode,
+            movie: this.selectedMovie,
+            cinema: this.selectedCinema,
+            schedule: this.selectedSchedule,
+            seats: this.selectedSeats.map(seatId => {
+                const seat = this.seatsData.find(s => s.id === seatId);
+                return seat ? seat.seatLabel : seatId;
+            }),
+            user: currentUser,
+            date: new Date().toISOString(),
+            totalPrice: this.selectedSeats.length * this.parsePrice(this.selectedSchedule.price || this.selectedMovie.price),
+            status: 'confirmed'
         };
-        return date.toLocaleDateString('fa-IR', options);
+
+        const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        bookings.push(booking);
+        localStorage.setItem('bookings', JSON.stringify(bookings));
+        
+        console.log('Booking saved:', booking);
     }
 
-    // Update user information in header
-    updateUserInfo() {
-        const navUser = document.getElementById('navUser');
-        if (!navUser) return;
+    // Generate booking code
+    generateBookingCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
 
-        const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        if (currentUser) {
-            navUser.innerHTML = `
-                <span class="user-name">سلام ${currentUser.firstName}!</span>
-                <button class="btn btn-outline btn-sm" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    خروج
-                </button>
-            `;
-        } else {
-            navUser.innerHTML = `
-                <a href="login.html" class="btn btn-outline btn-sm">ورود</a>
-            `;
+    // Confirm booking
+    async confirmBooking() {
+        if (this.selectedSeats.length === 0) {
+            this.showNotification('❌ لطفاً حداقل یک صندلی انتخاب کنید', 'error');
+            return;
+        }
+
+        if (!this.selectedSchedule) {
+            this.showNotification('❌ لطفاً سانس مورد نظر را انتخاب کنید', 'error');
+            return;
+        }
+
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
+        if (!currentUser) {
+            this.showNotification('❌ برای رزرو صندلی ابتدا وارد شوید', 'error');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+            return;
+        }
+
+        try {
+            // Generate booking code
+            const bookingCode = this.generateBookingCode();
+            
+            // Save booking
+            this.saveBooking(bookingCode);
+            
+            // Show success message
+            this.showNotification('✅ رزرو با موفقیت انجام شد!', 'success');
+            
+            // Show booking confirmation
+            this.showBookingConfirmation(bookingCode);
+            
+        } catch (error) {
+            this.showNotification('❌ خطا در رزرو صندلی', 'error');
         }
     }
 
-    // Setup event listeners
-    setupEventListeners() {
-        // Add any additional event listeners here
+    // Show booking confirmation
+    showBookingConfirmation(bookingCode) {
+        const confirmationSection = document.getElementById('bookingConfirmationSection');
+        if (!confirmationSection) return;
+
+        // Update confirmation details
+        document.getElementById('confirmationCode').textContent = bookingCode;
+        document.getElementById('confirmationMovie').textContent = this.selectedMovie.title;
+        document.getElementById('confirmationCinema').textContent = this.selectedCinema.name;
+        document.getElementById('confirmationDate').textContent = this.convertToPersianDate(this.selectedSchedule.date);
+        document.getElementById('confirmationTime').textContent = this.selectedSchedule.time;
+        
+        // Show selected seat labels
+        const selectedSeatLabels = this.selectedSeats.map(seatId => {
+            const seat = this.seatsData.find(s => s.id === seatId);
+            return seat ? seat.seatLabel : seatId;
+        });
+        document.getElementById('confirmationSeats').textContent = selectedSeatLabels.join(', ');
+        
+        document.getElementById('confirmationTotal').textContent = `${(this.selectedSeats.length * this.parsePrice(this.selectedSchedule.price || this.selectedMovie.price)).toLocaleString()} تومان`;
+
+        // Show confirmation section
+        document.getElementById('seatSelectionSection').style.display = 'none';
+        document.getElementById('bookingSummarySection').style.display = 'none';
+        confirmationSection.style.display = 'block';
     }
 
-    // Clear all seat selections
+    // Reset to cinema selection
+    resetToCinemaSelection() {
+        this.selectedSchedule = null;
+        this.selectedSeats = [];
+        this.seatsData = [];
+        
+        // Hide all sections, show cinema selection
+        document.getElementById('scheduleSelectionSection').style.display = 'none';
+        document.getElementById('seatSelectionSection').style.display = 'none';
+        document.getElementById('bookingSummarySection').style.display = 'none';
+        document.querySelector('.cinema-selection-section').style.display = 'block';
+        
+        console.log('Reset to cinema selection');
+    }
+
+    // Clear seat selection
     clearSelection() {
         this.selectedSeats = [];
         this.seatsData.forEach(seat => {
@@ -410,89 +572,29 @@ class SeatSelectionSystem {
         this.updateSummary();
         this.updateConfirmButton();
         
-        console.log('All seat selections cleared');
+        this.showNotification('انتخاب صندلی‌ها پاک شد', 'info');
     }
 
-    // Confirm booking
-    async confirmBooking() {
-        if (this.selectedSeats.length === 0) {
-            this.showNotification('❌ لطفاً حداقل یک صندلی انتخاب کنید', 'error');
-            return;
+    // Setup event listeners
+    setupEventListeners() {
+        // Confirm booking button
+        const confirmBtn = document.getElementById('confirmBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => this.confirmBooking());
         }
 
-        const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
-        if (!currentUser) {
-            this.showNotification('❌ برای رزرو صندلی ابتدا وارد شوید', 'error');
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
-            return;
+        // Clear selection button
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearSelection());
         }
 
-        // Show loading
-        this.showLoading(true);
-
-        try {
-            // Simulate API call
-            await this.delay(2000);
-
-            // Generate booking code
-            const bookingCode = this.generateBookingCode();
-
-            // Save booking to localStorage
-            this.saveBooking(bookingCode);
-
-            // Show success modal
-            this.showSuccessModal(bookingCode);
-
-        } catch (error) {
-            this.showNotification('❌ خطا در رزرو. لطفاً دوباره تلاش کنید', 'error');
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    // Generate unique booking code
-    generateBookingCode() {
-        const timestamp = Date.now().toString(36);
-        const random = Math.random().toString(36).substr(2, 5);
-        return `CIN${timestamp.toUpperCase()}${random.toUpperCase()}`;
-    }
-
-    // Save booking to localStorage
-    saveBooking(bookingCode) {
-        const booking = {
-            id: Date.now(),
-            code: bookingCode,
-            movie: this.selectedMovie,
-            cinema: this.selectedCinema,
-            seats: this.selectedSeats,
-            user: JSON.parse(localStorage.getItem('loggedInUser')),
-            date: new Date().toISOString(),
-            totalPrice: this.selectedSeats.length * this.parsePrice(this.selectedMovie.price),
-            status: 'confirmed'
-        };
-
-        const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-        bookings.push(booking);
-        localStorage.setItem('bookings', JSON.stringify(bookings));
-    }
-
-    // Show success modal
-    showSuccessModal(bookingCode) {
-        document.getElementById('bookingCode').textContent = bookingCode;
-        document.getElementById('successModal').classList.add('show');
-    }
-
-    // Show loading overlay
-    showLoading(show) {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            if (show) {
-                loadingOverlay.classList.add('show');
-            } else {
-                loadingOverlay.classList.remove('show');
-            }
+        // Back to home button
+        const backHomeBtn = document.getElementById('backHomeBtn');
+        if (backHomeBtn) {
+            backHomeBtn.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
         }
     }
 
@@ -503,6 +605,7 @@ class SeatSelectionSystem {
         notification.className = `notification notification-${type}`;
         notification.innerHTML = `
             <div class="notification-content">
+                <i class="fas fa-${this.getNotificationIcon(type)}"></i>
                 <span>${message}</span>
             </div>
         `;
@@ -522,6 +625,7 @@ class SeatSelectionSystem {
             transition: transform 0.3s ease;
             max-width: 300px;
             font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-size: 0.9rem;
         `;
         
         // Add to page
@@ -541,6 +645,17 @@ class SeatSelectionSystem {
         }, 3000);
     }
 
+    // Get notification icon
+    getNotificationIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            warning: 'exclamation-triangle',
+            error: 'times-circle',
+            info: 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+
     // Get notification color
     getNotificationColor(type) {
         const colors = {
@@ -551,58 +666,24 @@ class SeatSelectionSystem {
         };
         return colors[type] || '#3498db';
     }
-
-    // Utility function for delay
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    // Show available movies for selected cinema
-    showAvailableMoviesForCinema(cinemaId) {
-        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
-        const cinemaSchedules = schedules.filter(s => s.cinemaId === cinemaId && s.isActive);
-        
-        if (cinemaSchedules.length === 0) {
-            this.showNotification('❌ هیچ فیلمی در این سینما در دسترس نیست', 'error');
-            return;
-        }
-        
-        // Get movie IDs for this cinema
-        const movieIds = cinemaSchedules.map(s => s.movieId);
-        
-        // Get movies data
-        const allMovies = JSON.parse(localStorage.getItem('movies') || '[]');
-        const availableMovies = allMovies.filter(movie => movieIds.includes(movie.id));
-        
-        console.log(`Cinema ${cinemaId} has ${availableMovies.length} available movies:`, availableMovies);
-        
-        // Show movie selection if multiple movies available
-        if (availableMovies.length > 1) {
-            this.showMovieSelection(availableMovies);
-        } else if (availableMovies.length === 1) {
-            // Auto-select the only available movie
-            this.selectedMovie = availableMovies[0];
-            this.proceedToSeatSelection();
-        } else {
-            // No movies available in this cinema
-            this.showNotification('❌ هیچ فیلمی در این سینما در دسترس نیست', 'error');
-        }
-        
-        // Update confirm button state
-        this.updateConfirmButton();
-    }
 }
 
-// Global functions
+// Global functions for HTML onclick events
 function selectCinema(cinemaId) {
     if (window.seatSystem) {
         window.seatSystem.selectCinema(cinemaId);
     }
 }
 
-function selectMovieForCinema(movieId) {
+function selectSchedule(scheduleId) {
     if (window.seatSystem) {
-        window.seatSystem.selectMovieForCinema(movieId);
+        window.seatSystem.selectSchedule(scheduleId);
+    }
+}
+
+function resetToCinemaSelection() {
+    if (window.seatSystem) {
+        window.seatSystem.resetToCinemaSelection();
     }
 }
 
@@ -612,209 +693,7 @@ function clearSelection() {
     }
 }
 
-function confirmBooking() {
-    if (window.seatSystem) {
-        window.seatSystem.confirmBooking();
-    }
-}
-
-function closeModal() {
-    const modal = document.getElementById('successModal');
-    if (modal) {
-        modal.classList.remove('show');
-        // Redirect to home after closing modal
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 500);
-    }
-}
-
-function logout() {
-    if (window.authSystem) {
-        window.authSystem.logoutUser();
-    } else {
-        localStorage.removeItem('loggedInUser');
-        window.location.href = 'index.html';
-    }
-}
-
 // Initialize seat selection system when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     window.seatSystem = new SeatSelectionSystem();
 });
-
-// Add CSS for notifications and cinema cards
-const additionalStyles = document.createElement('style');
-additionalStyles.textContent = `
-    .notification-content {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .user-name {
-        color: var(--text-dark);
-        font-weight: 500;
-    }
-    
-    .btn-sm {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-    }
-    
-    /* Cinema Selection Styles */
-    .cinema-selection-section {
-        padding: 2rem 0;
-    }
-    
-    .section-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .section-header h2 {
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-    
-    .section-header p {
-        color: var(--text-light);
-    }
-    
-    .cinemas-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
-    
-    .cinema-card {
-        background: var(--bg-white);
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        box-shadow: var(--shadow);
-        transition: var(--transition);
-        border: 2px solid transparent;
-    }
-    
-    .cinema-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-hover);
-        border-color: var(--primary-color);
-    }
-    
-    .cinema-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-    
-    .cinema-header h3 {
-        color: var(--text-dark);
-        margin: 0;
-    }
-    
-    .cinema-capacity {
-        background: var(--primary-color);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-    
-    .cinema-details p {
-        margin-bottom: 0.5rem;
-        color: var(--text-light);
-    }
-    
-    .cinema-details i {
-        color: var(--primary-color);
-        margin-left: 0.5rem;
-        width: 16px;
-    }
-    
-    .cinema-features {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin: 1rem 0;
-    }
-    
-    .cinema-features span {
-        background: rgba(231, 76, 60, 0.1);
-        color: var(--primary-color);
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-    }
-    
-    /* Cinema Info Display */
-    .cinema-info-display {
-        background: var(--bg-white);
-        border-radius: var(--border-radius);
-        padding: 1rem 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow);
-        text-align: center;
-    }
-    
-    .cinema-info-display h3 {
-        color: var(--primary-color);
-        margin-bottom: 0.5rem;
-    }
-    
-    .cinema-info-display p {
-        color: var(--text-light);
-        margin-bottom: 0.25rem;
-    }
-    
-    /* Additional seat styles */
-    .seat-grid-item.vip::after {
-        content: 'VIP';
-        position: absolute;
-        bottom: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 0.6rem;
-        color: var(--secondary-color);
-        font-weight: 700;
-    }
-    
-    /* Hover effects for VIP seats */
-    .seat-grid-item.vip:hover {
-        box-shadow: 0 8px 25px rgba(243, 156, 18, 0.6);
-    }
-    
-    /* Selected seat animation */
-    .seat-grid-item.selected {
-        animation: seatSelected 0.3s ease-out;
-    }
-    
-    @keyframes seatSelected {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1.1); }
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .seats-grid {
-            overflow-x: auto;
-            padding-bottom: 1rem;
-        }
-        
-        .seat-grid-item::before {
-            font-size: 0.6rem;
-        }
-        
-        .seat-grid-item.vip::after {
-            font-size: 0.5rem;
-        }
-        
-        .cinemas-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-`;
-document.head.appendChild(additionalStyles);

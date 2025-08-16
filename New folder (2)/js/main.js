@@ -3,10 +3,12 @@ let currentMovies = [];
 let filteredMovies = [];
 let currentPage = 1;
 const moviesPerPage = 6;
+let currentUser = null;
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
     initializeWebsite();
+    checkUserAuth();
 });
 
 // Initialize website functionality
@@ -20,6 +22,84 @@ function initializeWebsite() {
     setupNewsletterForm();
 }
 
+// Check user authentication status
+function checkUserAuth() {
+    const user = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
+    if (user) {
+        currentUser = user;
+        showUserMenu(user);
+    } else {
+        showAuthButtons();
+    }
+}
+
+// Show user menu when logged in
+function showUserMenu(user) {
+    const navAuth = document.getElementById('navAuth');
+    const navUser = document.getElementById('navUser');
+    const userName = document.getElementById('userName');
+    
+    if (navAuth && navUser && userName) {
+        navAuth.style.display = 'none';
+        navUser.style.display = 'flex';
+        userName.textContent = `${user.firstName} ${user.lastName}`;
+        
+        // Setup user menu toggle
+        const userMenuToggle = document.getElementById('userMenuToggle');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userMenuToggle && userDropdown) {
+            userMenuToggle.addEventListener('click', function() {
+                userDropdown.classList.toggle('active');
+            });
+            
+            // Setup logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+        }
+    }
+}
+
+// Show authentication buttons when not logged in
+function showAuthButtons() {
+    const navAuth = document.getElementById('navAuth');
+    const navUser = document.getElementById('navUser');
+    
+    if (navAuth && navUser) {
+        navAuth.style.display = 'flex';
+        navUser.style.display = 'none';
+    }
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('loggedInUser');
+    currentUser = null;
+    showAuthButtons();
+    showNotification('با موفقیت از حساب کاربری خارج شدید', 'success');
+    
+    // Redirect to home page if not already there
+    if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
+        window.location.href = 'index.html';
+    }
+}
+
+// Smooth scroll to section
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({
+            behavior: 'smooth'
+        });
+    }
+}
+
 // Load initial data from JSON
 async function loadInitialData() {
     try {
@@ -28,25 +108,25 @@ async function loadInitialData() {
         
         // Initialize localStorage with data if empty
         if (!localStorage.getItem('movies')) {
-            localStorage.setItem('movies', JSON.stringify(data.movies));
+            localStorage.setItem('movies', JSON.stringify(data.movies || []));
         }
         
         if (!localStorage.getItem('cinemas')) {
-            localStorage.setItem('cinemas', JSON.stringify(data.cinemas));
+            localStorage.setItem('cinemas', JSON.stringify(data.cinemas || []));
         }
         
         if (!localStorage.getItem('users')) {
             // Combine admin users with sample users
-            const allUsers = [...data.users, ...data.sampleUsers];
+            const allUsers = [...(data.users || []), ...(data.sampleUsers || [])];
             localStorage.setItem('users', JSON.stringify(allUsers));
         }
         
         if (!localStorage.getItem('schedules')) {
-            localStorage.setItem('schedules', JSON.stringify(data.schedules));
+            localStorage.setItem('schedules', JSON.stringify(data.schedules || []));
         }
         
         if (!localStorage.getItem('bookings')) {
-            localStorage.setItem('bookings', JSON.stringify(data.bookings));
+            localStorage.setItem('bookings', JSON.stringify(data.bookings || []));
         }
         
     } catch (error) {
@@ -200,11 +280,37 @@ function loadDefaultData() {
             isActive: true
         }
     ];
-
-    if (!localStorage.getItem('movies')) {
-        localStorage.setItem('movies', JSON.stringify(defaultMovies));
-    }
-
+    
+    const defaultCinemas = [
+        {
+            id: 1,
+            name: "سینما الف",
+            address: "معالی آباد مجتمع الف",
+            phone: "071-36362500",
+            capacity: 30,
+            features: ["صندلی VIP", "صدای دالبی", "کافه", "پارکینگ"]
+        },
+        {
+            id: 2,
+            name: "سینما سعدی",
+            address: "خیابان قصرالدشت، چهارراه سینما سعدی",
+            phone: "071-32330791",
+            capacity: 40,
+            features: ["صندلی راحت", "صدای خوب", "بوفه"]
+        },
+        {
+            id: 3,
+            name: "سینما هنر شهر آفتاب",
+            address: "گلستان مجتمع خلیج فارس",
+            phone: "071-32270777",
+            capacity: 60,
+            features: ["صدای دالبی", "پارکینگ", "فروشگاه", "کافه", "صندلی VIP", "وای‌فای رایگان"]
+        }
+    ];
+    
+    localStorage.setItem('movies', JSON.stringify(defaultMovies));
+    localStorage.setItem('cinemas', JSON.stringify(defaultCinemas));
+    
     // Set default users if not exists
     const defaultUsers = [
         {
@@ -214,61 +320,27 @@ function loadDefaultData() {
             firstName: 'مدیر',
             lastName: 'سیستم',
             phone: '09123456789',
-            password: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
+            password: 'admin123',
             role: 'admin',
             isActive: true,
             createdAt: new Date().toISOString()
         },
         {
             id: 2,
-            username: 'representative',
-            email: 'rep@cinema-iran.ir',
-            firstName: 'نماینده',
-            lastName: 'عمومی',
+            username: 'user',
+            email: 'user@cinema-iran.ir',
+            firstName: 'کاربر',
+            lastName: 'عادی',
             phone: '09187654321',
-            password: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-            role: 'representative',
+            password: 'user123',
+            role: 'user',
             isActive: true,
             createdAt: new Date().toISOString()
         }
     ];
-
+    
     if (!localStorage.getItem('users')) {
         localStorage.setItem('users', JSON.stringify(defaultUsers));
-    }
-
-    // Set default cinemas if not exists
-    const defaultCinemas = [
-        {
-            id: 1,
-            name: "سینما الف",
-            address: "معالی آباد مجتمع الف",
-            phone: "071-36362500",
-            capacity: 30,
-            features: ["صندلی vip", "صدای دالبی", "کافه", "پارکینگ"]
-        },
-
-        {
-            id: 2,
-            name: "سینما سعدی",
-            address: "خیابان قصرالدشت، چهارراه سینما سعدی",
-            phone: "071-32330791",
-            capacity: 40,
-            features: ["صندلی راحت","صدای خوب", "بوفه"]
-        },
-
-        {
-            id: 3,
-            name: "سینما هنر شهر افتاب",
-            address: "گلستان مجتمع خلیج فارس",
-            phone: "071-32270777",
-            capacity: 60,
-            features: ["صدای دالبی", "پارکینگ", "فروشگاه","کافه","صندلی vip","وای فای رایگان"]
-        },
-    ];
-
-    if (!localStorage.getItem('cinemas')) {
-        localStorage.setItem('cinemas', JSON.stringify(defaultCinemas));
     }
 }
 
@@ -278,6 +350,41 @@ function loadMovies() {
     currentMovies = movies.filter(movie => movie.isActive);
     filteredMovies = [...currentMovies];
     displayMovies();
+    
+    // Setup filter buttons
+    setupFilterButtons();
+}
+
+// Setup filter buttons
+function setupFilterButtons() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const genre = this.getAttribute('data-genre');
+            filterMovies(genre);
+        });
+    });
+}
+
+// Setup filter buttons
+function setupFilterButtons() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const genre = this.getAttribute('data-genre');
+            filterMovies(genre);
+        });
+    });
 }
 
 // Display movies in grid
@@ -337,7 +444,42 @@ function updateLoadMoreButton() {
 // Load more movies
 function loadMoreMovies() {
     currentPage++;
-    displayMovies();
+    
+    const moviesGrid = document.getElementById('moviesGrid');
+    const startIndex = (currentPage - 1) * moviesPerPage;
+    const endIndex = startIndex + moviesPerPage;
+    const moviesToShow = filteredMovies.slice(startIndex, endIndex);
+    
+    if (moviesToShow.length === 0) {
+        return;
+    }
+    
+    // Add new movies to existing grid instead of replacing
+    const newMoviesHTML = moviesToShow.map(movie => `
+        <div class="movie-card" data-movie-id="${movie.id}">
+            <div class="movie-image">
+                ${movie.image}
+            </div>
+            <div class="movie-info">
+                <h3 class="movie-title">${movie.title}</h3>
+                <p class="movie-genre">${movie.genre}</p>
+                <div class="movie-rating">
+                    <i class="fas fa-star"></i>
+                    <span>${movie.rating}/5</span>
+                </div>
+                <p class="movie-price">${movie.price} تومان</p>
+                <button class="book-btn" onclick="bookMovie(${movie.id})">
+                    رزرو صندلی
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Append new movies to existing grid
+    moviesGrid.insertAdjacentHTML('beforeend', newMoviesHTML);
+    
+    // Update load more button
+    updateLoadMoreButton();
 }
 
 // Filter movies by genre
@@ -353,11 +495,57 @@ function filterMovies(genre) {
     displayMovies();
 }
 
+// Filter movies by cinema
+function filterMoviesByCinema() {
+    const cinemaSelect = document.getElementById('cinemaSelect');
+    const selectedCinema = cinemaSelect.value;
+    
+    if (selectedCinema === 'all') {
+        filteredMovies = [...currentMovies];
+    } else {
+        // Filter movies that are available in the selected cinema
+        const schedules = JSON.parse(localStorage.getItem('schedules')) || [];
+        const cinemaSchedules = schedules.filter(schedule => 
+            schedule.cinemaId == selectedCinema && schedule.isActive
+        );
+        
+        const availableMovieIds = [...new Set(cinemaSchedules.map(schedule => schedule.movieId))];
+        filteredMovies = currentMovies.filter(movie => 
+            availableMovieIds.includes(movie.id)
+        );
+    }
+    
+    currentPage = 1;
+    displayMovies();
+}
+
+// Filter movies by cinema
+function filterMoviesByCinema() {
+    const cinemaSelect = document.getElementById('cinemaSelect');
+    const selectedCinema = cinemaSelect.value;
+    
+    if (selectedCinema === 'all') {
+        filteredMovies = [...currentMovies];
+    } else {
+        // Filter movies that are available in the selected cinema
+        const schedules = JSON.parse(localStorage.getItem('schedules')) || [];
+        const cinemaSchedules = schedules.filter(schedule => 
+            schedule.cinemaId == selectedCinema && schedule.isActive
+        );
+        
+        const availableMovieIds = [...new Set(cinemaSchedules.map(schedule => schedule.movieId))];
+        filteredMovies = currentMovies.filter(movie => 
+            availableMovieIds.includes(movie.id)
+        );
+    }
+    
+    currentPage = 1;
+    displayMovies();
+}
+
 // Book a movie
 function bookMovie(movieId) {
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
-    
-    if (!user) {
+    if (!currentUser) {
         showNotification('برای رزرو صندلی ابتدا وارد شوید', 'warning');
         setTimeout(() => {
             window.location.href = 'login.html';
@@ -375,20 +563,6 @@ function bookMovie(movieId) {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Filter buttons
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Remove active class from all buttons
-            filterBtns.forEach(b => b.classList.remove('active'));
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            const genre = this.getAttribute('data-genre');
-            filterMovies(genre);
-        });
-    });
-    
     // Load more button
     const loadMoreBtn = document.getElementById('loadMoreBtn');
     if (loadMoreBtn) {
@@ -410,6 +584,16 @@ function setupEventListeners() {
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', toggleMobileMenu);
     }
+    
+    // Close user dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const userMenu = document.querySelector('.user-menu');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userMenu && userDropdown && !userMenu.contains(e.target)) {
+            userDropdown.classList.remove('active');
+        }
+    });
 }
 
 // Setup scroll effects

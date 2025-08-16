@@ -25,9 +25,28 @@
                 <a href="#about" class="nav-link">درباره ما</a>
                 <a href="#contact" class="nav-link">تماس</a>
             </div>
-            <div class="nav-auth">
-                <a href="login.html" class="btn btn-outline">ورود</a>
-                <a href="register.html" class="btn btn-primary">ثبت‌نام</a>
+            <div class="nav-auth" id="navAuth">
+                <a href="login.html" class="btn btn-outline" id="loginBtn">ورود</a>
+                <a href="register.html" class="btn btn-primary" id="registerBtn">ثبت‌نام</a>
+            </div>
+            <div class="nav-user" id="navUser" style="display: none;">
+                <div class="user-menu">
+                    <button class="user-menu-toggle" id="userMenuToggle">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">کاربر</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            پروفایل من
+                        </a>
+                        <a href="#" class="dropdown-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            خروج از حساب
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="mobile-menu-toggle">
                 <i class="fas fa-bars"></i>
@@ -44,8 +63,8 @@
             <h1 class="hero-title">بهترین فیلم‌های روز را در سینما ببینید</h1>
             <p class="hero-subtitle">تجربه‌ای بی‌نظیر با کیفیت بالا و صندلی‌های راحت در بهترین سینماهای ایران</p>
             <div class="hero-buttons">
-                <a href="#movies" class="btn btn-primary btn-large">مشاهده فیلم‌ها</a>
-                <a href="#cinemas" class="btn btn-outline btn-large">انتخاب سینما</a>
+                <a href="#movies" class="btn btn-primary btn-large" onclick="scrollToSection('movies')">مشاهده فیلم‌ها</a>
+                <a href="#cinemas" class="btn btn-outline btn-large" onclick="scrollToSection('cinemas')">انتخاب سینما</a>
             </div>
         </div>
         <div class="hero-scroll">
@@ -69,6 +88,11 @@
             <button class="filter-btn" data-genre="کمدی">کمدی</button>
             <button class="filter-btn" data-genre="علمی-تخیلی">علمی-تخیلی</button>
             <button class="filter-btn" data-genre="ترسناک">ترسناک</button>
+            <button class="filter-btn" data-genre="عاشقانه">عاشقانه</button>
+            <button class="filter-btn" data-genre="ماجراجویی">ماجراجویی</button>
+            <button class="filter-btn" data-genre="معمایی">معمایی</button>
+            <button class="filter-btn" data-genre="جنگی">جنگی</button>
+            <button class="filter-btn" data-genre="فانتزی">فانتزی</button>
             
             <div class="cinema-filter">
                 <label for="cinemaSelect">فیلتر بر اساس سینما:</label>
