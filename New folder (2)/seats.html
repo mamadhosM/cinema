@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>انتخاب صندلی - سینما ایران</title>
+    <title>انتخاب صندلی - سینمای ایران</title>
+    <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/seats.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -13,122 +14,85 @@
     <header class="header">
         <nav class="nav">
             <div class="nav-brand">
-                <a href="index.html">
-                    <div class="logo">
-                        <i class="fas fa-film"></i>
-                        <span>سینما ایران</span>
-                    </div>
+                <a href="index.html" class="logo">
+                    <i class="fas fa-film"></i>
+                    <span>سینمای ایران</span>
                 </a>
             </div>
             <div class="nav-menu">
-                <a href="index.html">خانه</a>
-                <a href="index.html#movies">فیلم‌ها</a>
-                <a href="index.html#cinemas">سینماها</a>
+                <a href="index.html" class="nav-link">خانه</a>
+                <a href="#movies" class="nav-link">فیلم‌ها</a>
+                <a href="#cinemas" class="nav-link">سینماها</a>
+                <a href="#about" class="nav-link">درباره ما</a>
+                <a href="#contact" class="nav-link">تماس</a>
             </div>
-            <div class="nav-user" id="navUser">
-                <!-- User info will be loaded here -->
+            <div class="nav-auth" id="navAuth">
+                <a href="login.html" class="btn btn-outline">ورود</a>
+                <a href="register.html" class="btn btn-primary">ثبت‌نام</a>
+            </div>
+            <div class="nav-user" id="navUser" style="display: none;">
+                <div class="user-menu">
+                    <button class="user-menu-toggle" id="userMenuToggle">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">کاربر</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            پروفایل من
+                        </a>
+                        <a href="#" class="dropdown-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            خروج از حساب
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
             </div>
         </nav>
     </header>
 
-    <div class="container">
+    <!-- Main Content -->
+    <main class="main-content">
         <!-- Movie Info Section -->
         <section class="movie-info-section">
-            <div class="movie-info-card">
-                <div class="movie-poster">
-                    <div class="movie-image" id="movieImage">🎬</div>
-                </div>
-                <div class="movie-details">
-                    <h1 class="movie-title" id="movieTitle">نام فیلم</h1>
-                    <div class="movie-meta">
-                        <span class="movie-genre" id="movieGenre">ژانر</span>
-                        <span class="movie-duration" id="movieDuration">مدت</span>
-                        <span class="movie-rating" id="movieRating">امتیاز</span>
-                    </div>
-                    <p class="movie-description" id="movieDescription">توضیحات فیلم</p>
-                    <div class="movie-price">
-                        <span class="price-label">قیمت هر صندلی:</span>
-                        <span class="price-amount" id="moviePrice">0 تومان</span>
-                    </div>
+            <div class="container">
+                <div class="movie-info" id="movieInfo">
+                    <!-- Movie info will be loaded here -->
                 </div>
             </div>
         </section>
 
         <!-- Cinema Selection Section -->
         <section class="cinema-selection-section">
-            <div class="section-header">
-                <h2>انتخاب سینما</h2>
-                <p>سینمای مورد نظر خود را انتخاب کنید</p>
-            </div>
-            
-            <div class="cinemas-grid" id="cinemasGrid">
-                <!-- Cinemas will be loaded here -->
+            <div class="container">
+                <div class="section-header">
+                    <h2>انتخاب سینما</h2>
+                    <p>سینمای مورد نظر خود را انتخاب کنید</p>
+                </div>
+                
+                <div class="cinemas-grid" id="cinemasGrid">
+                    <!-- Cinemas will be loaded here -->
+                </div>
             </div>
         </section>
 
         <!-- Schedule Selection Section -->
         <section class="schedule-selection-section" id="scheduleSelectionSection" style="display: none;">
-            <div class="section-header">
-                <h2>انتخاب سانس</h2>
-                <p>سانس مورد نظر خود را انتخاب کنید</p>
-            </div>
-            
-            <div class="schedule-grid" id="scheduleGrid">
-                <!-- Schedules will be loaded here -->
-            </div>
-            
-            <div class="schedule-actions">
-                <button class="btn btn-outline" onclick="resetToCinemaSelection()">
-                    <i class="fas fa-arrow-right"></i>
-                    بازگشت به انتخاب سینما
-                </button>
-            </div>
-        </section>
-
-        <!-- Seat Selection Section -->
-        <section class="seat-selection-section" id="seatSelectionSection" style="display: none;">
-            <div class="cinema-info-display">
-                <h3 id="selectedCinemaName">نام سینما</h3>
-                <p id="selectedCinemaAddress">آدرس سینما</p>
-                <p id="selectedCinemaCapacity">ظرفیت: 0 صندلی</p>
-            </div>
-
-            <div class="screen-container">
-                <div class="screen">
-                    <i class="fas fa-tv"></i>
-                    <span>صفحه نمایش</span>
-                </div>
-            </div>
-
-            <div class="seats-container">
-                <div class="seats-legend">
-                    <div class="legend-item">
-                        <div class="seat available"></div>
-                        <span>خالی</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="seat selected"></div>
-                        <span>انتخاب شده</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="seat occupied"></div>
-                        <span>اشغال شده</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="seat vip"></div>
-                        <span>VIP</span>
-                    </div>
-                </div>
-
-                <div class="seats-grid" id="seatsGrid">
-                    <!-- Seats will be generated here -->
-                </div>
-
-                <div class="seats-info">
-                    <p class="seats-tip">برای انتخاب صندلی روی آن کلیک کنید</p>
+            <div class="container">
+                <div class="section-header">
+                    <h2>انتخاب سانس</h2>
+                    <p>سانس مورد نظر خود را انتخاب کنید</p>
                 </div>
                 
-                <div class="seats-actions">
+                <div class="schedule-grid" id="scheduleGrid">
+                    <!-- Schedules will be loaded here -->
+                </div>
+                
+                <div class="schedule-actions">
                     <button class="btn btn-outline" onclick="resetToCinemaSelection()">
                         <i class="fas fa-arrow-right"></i>
                         بازگشت به انتخاب سینما
@@ -137,11 +101,68 @@
             </div>
         </section>
 
+        <!-- Seat Selection Section -->
+        <section class="seat-selection-section" id="seatSelectionSection" style="display: none;">
+            <div class="container">
+                <div class="section-header">
+                    <h2>انتخاب صندلی</h2>
+                    <p>صندلی‌های مورد نظر خود را انتخاب کنید</p>
+                </div>
+
+                <!-- Cinema Info Display -->
+                <div class="cinema-info-display">
+                    <h3 id="selectedCinemaName">نام سینما</h3>
+                    <p id="selectedCinemaAddress">آدرس سینما</p>
+                    <p id="selectedCinemaCapacity">ظرفیت سینما</p>
+                </div>
+
+                <!-- Seats Container -->
+                <div class="seats-container">
+                    <div class="seats-legend">
+                        <div class="legend-item">
+                            <span class="seat available"></span>
+                            <span>موجود</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="seat selected"></span>
+                            <span>انتخاب شده</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="seat occupied"></span>
+                            <span>اشغال شده</span>
+                        </div>
+                    </div>
+                    
+                    <div class="seats-container-inner">
+                        <div class="screen">پرده سینما</div>
+                        <div class="seats-container" id="seatsContainer">
+                            <!-- Seats will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="seats-info">
+                        <p class="seats-tip">برای انتخاب صندلی روی آن کلیک کنید</p>
+                    </div>
+                    
+                    <div class="seats-actions">
+                        <button class="btn btn-outline" onclick="resetToCinemaSelection()">
+                            <i class="fas fa-arrow-right"></i>
+                            بازگشت به انتخاب سینما
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Booking Summary Section -->
         <section class="booking-summary-section" id="bookingSummarySection" style="display: none;">
-            <div class="booking-summary-card">
-                <h2>خلاصه رزرو</h2>
-                <div class="summary-content">
+            <div class="container">
+                <div class="section-header">
+                    <h2>خلاصه رزرو</h2>
+                    <p>اطلاعات رزرو خود را بررسی کنید</p>
+                </div>
+                
+                <div class="summary-card">
                     <div class="summary-item">
                         <span class="label">فیلم:</span>
                         <span class="value" id="summaryMovie">-</span>
@@ -159,11 +180,11 @@
                         <span class="value" id="summaryTime">-</span>
                     </div>
                     <div class="summary-item">
-                        <span class="label">صندلی‌های انتخاب شده:</span>
+                        <span class="label">صندلی‌ها:</span>
                         <span class="value" id="summarySeats">-</span>
                     </div>
                     <div class="summary-item">
-                        <span class="label">تعداد صندلی:</span>
+                        <span class="label">تعداد:</span>
                         <span class="value" id="summaryCount">0</span>
                     </div>
                     <div class="summary-item total">
@@ -181,44 +202,100 @@
                         <i class="fas fa-times"></i>
                         پاک کردن انتخاب
                     </button>
-                    <button class="btn btn-primary" onclick="confirmBooking()" id="confirmBtn" disabled>
-                        <i class="fas fa-check"></i>
-                        تایید رزرو
+                    <button class="btn btn-primary" id="confirmBtn" disabled>
+                        انتخاب صندلی
                     </button>
                 </div>
             </div>
         </section>
-    </div>
 
-    <!-- Success Modal -->
-    <div class="modal" id="successModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <i class="fas fa-check-circle success-icon"></i>
-                <h2>رزرو موفقیت‌آمیز!</h2>
+        <!-- Booking Confirmation Section -->
+        <section class="booking-confirmation-section" id="bookingConfirmationSection" style="display: none;">
+            <div class="container">
+                <div class="section-header">
+                    <h2>رزرو موفقیت‌آمیز</h2>
+                    <p>رزرو شما با موفقیت انجام شد</p>
+                </div>
+                
+                <div class="confirmation-card">
+                    <div class="confirmation-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>تبریک! رزرو شما تایید شد</h3>
+                    </div>
+                    
+                    <div class="confirmation-details">
+                        <div class="confirmation-item">
+                            <span class="label">کد رزرو:</span>
+                            <span class="value" id="confirmationCode">-</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="label">فیلم:</span>
+                            <span class="value" id="confirmationMovie">-</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="label">سینما:</span>
+                            <span class="value" id="confirmationCinema">-</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="label">تاریخ:</span>
+                            <span class="value" id="confirmationDate">-</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="label">ساعت:</span>
+                            <span class="value" id="confirmationTime">-</span>
+                        </div>
+                        <div class="confirmation-item">
+                            <span class="label">صندلی‌ها:</span>
+                            <span class="value" id="confirmationSeats">-</span>
+                        </div>
+                        <div class="confirmation-item total">
+                            <span class="label">مجموع:</span>
+                            <span class="value" id="confirmationTotal">0 تومان</span>
+                        </div>
+                    </div>
+                    
+                    <div class="confirmation-actions">
+                        <button class="btn btn-primary" id="backHomeBtn">
+                            <i class="fas fa-home"></i>
+                            بازگشت به خانه
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <p>رزرو شما با موفقیت انجام شد. کد رزرو شما:</p>
-                <div class="booking-code" id="bookingCode">-</div>
-                <p class="modal-note">این کد را برای مراجعه به سینما همراه داشته باشید.</p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>سینمای ایران</h3>
+                    <p>بهترین تجربه سینمایی را با ما تجربه کنید</p>
+                </div>
+                <div class="footer-section">
+                    <h3>لینک‌های مفید</h3>
+                    <ul>
+                        <li><a href="#movies">فیلم‌ها</a></li>
+                        <li><a href="#cinemas">سینماها</a></li>
+                        <li><a href="#about">درباره ما</a></li>
+                        <li><a href="#contact">تماس</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>تماس با ما</h3>
+                    <p>ایمیل: info@cinema-iran.ir</p>
+                    <p>تلفن: 021-12345678</p>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeModal()">
-                    <i class="fas fa-home"></i>
-                    بازگشت به خانه
-                </button>
+            <div class="footer-bottom">
+                <p>&copy; 2024 سینمای ایران. تمامی حقوق محفوظ است.</p>
             </div>
         </div>
-    </div>
+    </footer>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner">
-            <i class="fas fa-spinner fa-spin"></i>
-            <span>در حال پردازش...</span>
-        </div>
-    </div>
-
+    <!-- Scripts -->
     <script src="js/seats.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

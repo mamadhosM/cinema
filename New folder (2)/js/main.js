@@ -327,13 +327,13 @@ function loadDefaultData() {
         },
         {
             id: 2,
-            username: 'representative',
-            email: 'rep@cinema-iran.ir',
-            firstName: 'نماینده',
-            lastName: 'عمومی',
+            username: 'user',
+            email: 'user@cinema-iran.ir',
+            firstName: 'کاربر',
+            lastName: 'عادی',
             phone: '09187654321',
-            password: 'rep123',
-            role: 'representative',
+            password: 'user123',
+            role: 'user',
             isActive: true,
             createdAt: new Date().toISOString()
         }

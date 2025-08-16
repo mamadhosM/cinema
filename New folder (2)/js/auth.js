@@ -1,4 +1,4 @@
-// Authentication system with password hashing
+// Authentication system
 class AuthSystem {
     constructor() {
         this.users = this.loadUsers();
@@ -10,14 +10,13 @@ class AuthSystem {
     init() {
         this.setupEventListeners();
         this.checkAuthStatus();
-        this.setupPasswordStrength();
     }
 
     // Load users from localStorage
     loadUsers() {
         const users = localStorage.getItem('users');
         if (!users) {
-            console.log('No users found in localStorage, creating default users...');
+            console.log('No users found, creating default users...');
             // Create default admin user
             const defaultUsers = [
                 {
@@ -34,123 +33,21 @@ class AuthSystem {
                 },
                 {
                     id: 2,
-                    username: 'representative',
-                    email: 'rep@cinema-iran.ir',
-                    firstName: 'نماینده',
-                    lastName: 'عمومی',
+                    username: 'user',
+                    email: 'user@cinema-iran.ir',
+                    firstName: 'کاربر',
+                    lastName: 'عادی',
                     phone: '09187654321',
-                    password: 'rep123',
-                    role: 'representative',
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: 3,
-                    username: 'cinema1_manager',
-                    email: 'manager1@cinema-iran.ir',
-                    firstName: 'احمد',
-                    lastName: 'محمدی',
-                    phone: '09111111111',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 1,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: 4,
-                    username: 'cinema2_manager',
-                    email: 'manager2@cinema-iran.ir',
-                    firstName: 'فاطمه',
-                    lastName: 'احمدی',
-                    phone: '09122222222',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 2,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: 5,
-                    username: 'cinema3_manager',
-                    email: 'manager3@cinema-iran.ir',
-                    firstName: 'علی',
-                    lastName: 'رضایی',
-                    phone: '09133333333',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 3,
+                    password: 'user123',
+                    role: 'user',
                     createdAt: new Date().toISOString(),
                     isActive: true
                 }
             ];
             localStorage.setItem('users', JSON.stringify(defaultUsers));
-            console.log('Default users created and saved to localStorage');
             return defaultUsers;
         }
-        
-        const parsedUsers = JSON.parse(users);
-        console.log('Users loaded from localStorage:', parsedUsers.length, 'users found');
-        
-        // Check if we need to add default users (in case they were overwritten)
-        const hasAdmin = parsedUsers.some(u => u.username === 'admin');
-        const hasRep = parsedUsers.some(u => u.username === 'representative');
-        const hasManagers = parsedUsers.some(u => u.role === 'cinema_manager');
-        
-        if (!hasAdmin || !hasRep || !hasManagers) {
-            // Add missing default users
-            const missingUsers = [];
-            if (!hasAdmin) {
-                missingUsers.push({
-                    id: Date.now() + 1,
-                    username: 'admin',
-                    email: 'admin@cinema-iran.ir',
-                    firstName: 'مدیر',
-                    lastName: 'سیستم',
-                    phone: '09123456789',
-                    password: 'admin123',
-                    role: 'admin',
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                });
-            }
-            if (!hasRep) {
-                missingUsers.push({
-                    id: Date.now() + 2,
-                    username: 'representative',
-                    email: 'rep@cinema-iran.ir',
-                    firstName: 'نماینده',
-                    lastName: 'عمومی',
-                    phone: '09187654321',
-                    password: 'rep123',
-                    role: 'representative',
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                });
-            }
-            if (!hasManagers) {
-                missingUsers.push({
-                    id: Date.now() + 3,
-                    username: 'cinema1_manager',
-                    email: 'manager1@cinema-iran.ir',
-                    firstName: 'احمد',
-                    lastName: 'محمدی',
-                    phone: '09111111111',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 1,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                });
-            }
-            
-            const updatedUsers = [...parsedUsers, ...missingUsers];
-            localStorage.setItem('users', JSON.stringify(updatedUsers));
-            console.log('Missing default users added');
-            return updatedUsers;
-        }
-        
-        return parsedUsers;
+        return JSON.parse(users);
     }
 
     // Load current user from localStorage
@@ -186,9 +83,6 @@ class AuthSystem {
         if (registerForm) {
             registerForm.addEventListener('submit', (e) => this.handleRegister(e));
         }
-        
-        // Social login buttons
-        this.setupSocialLogin();
     }
 
     // Handle login
@@ -197,10 +91,10 @@ class AuthSystem {
         
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
-        const rememberMe = document.getElementById('rememberMe')?.checked || false;
         
         // Validate inputs
-        if (!this.validateLoginInputs(username, password)) {
+        if (!username || !password) {
+            this.showNotification('❌ لطفاً همه فیلدها را پر کنید', 'error');
             return;
         }
         
@@ -217,7 +111,7 @@ class AuthSystem {
             
             if (user) {
                 // Login successful
-                this.loginUser(user, rememberMe);
+                this.loginUser(user);
                 this.showNotification('✅ ورود موفقیت‌آمیز بود', 'success');
                 
                 // Redirect to home page
@@ -227,7 +121,6 @@ class AuthSystem {
             } else {
                 // Login failed
                 this.showNotification('❌ نام کاربری یا رمز عبور اشتباه است', 'error');
-                this.shakeForm(e.target);
             }
             
         } catch (error) {
@@ -275,7 +168,7 @@ class AuthSystem {
             const newUser = this.createUser(userData);
             
             // Auto-login after registration
-            this.loginUser(newUser, false);
+            this.loginUser(newUser);
             
             this.showNotification('✅ ثبت‌نام موفقیت‌آمیز بود', 'success');
             
@@ -330,14 +223,10 @@ class AuthSystem {
     }
 
     // Login user
-    loginUser(user, rememberMe) {
+    loginUser(user) {
         this.currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
         localStorage.setItem('loggedInUser', JSON.stringify(user)); // Keep for backward compatibility
-        
-        if (rememberMe) {
-            localStorage.setItem('rememberMe', 'true');
-        }
         
         // Update UI on main page if available
         if (window.checkUserAuth) {
@@ -350,7 +239,6 @@ class AuthSystem {
         this.currentUser = null;
         localStorage.removeItem('currentUser');
         localStorage.removeItem('loggedInUser');
-        localStorage.removeItem('rememberMe');
         
         this.showNotification('👋 با موفقیت خارج شدید', 'info');
         
@@ -369,12 +257,6 @@ class AuthSystem {
         if (this.currentUser) {
             // User is logged in
             this.updateUIForLoggedInUser();
-        } else {
-            // Check for remember me
-            const rememberMe = localStorage.getItem('rememberMe');
-            if (rememberMe) {
-                // Auto-login logic could go here
-            }
         }
     }
 
@@ -388,25 +270,6 @@ class AuthSystem {
         }
     }
 
-    // Setup social login
-    setupSocialLogin() {
-        const googleBtn = document.querySelector('.btn-google');
-        const telegramBtn = document.querySelector('.btn-telegram');
-        
-        if (googleBtn) {
-            googleBtn.addEventListener('click', () => this.handleSocialLogin('google'));
-        }
-        
-        if (telegramBtn) {
-            telegramBtn.addEventListener('click', () => this.handleSocialLogin('telegram'));
-        }
-    }
-
-    // Handle social login
-    handleSocialLogin(provider) {
-        this.showNotification(`🔄 ورود با ${provider} در حال توسعه است`, 'info');
-    }
-
     // Utility functions
     setButtonLoading(button, loading) {
         if (loading) {
@@ -416,22 +279,6 @@ class AuthSystem {
             button.classList.remove('loading');
             button.disabled = false;
         }
-    }
-
-    highlightInput(inputId, type) {
-        const input = document.getElementById(inputId);
-        if (input) {
-            const inputIcon = input.closest('.input-icon');
-            inputIcon.classList.remove('error', 'success');
-            inputIcon.classList.add(type);
-        }
-    }
-
-    shakeForm(form) {
-        form.classList.add('shake');
-        setTimeout(() => {
-            form.classList.remove('shake');
-        }, 500);
     }
 
     showNotification(message, type = 'info') {
@@ -476,7 +323,7 @@ class AuthSystem {
             setTimeout(() => {
                 document.body.removeChild(notification);
             }, 300);
-        }, 4000);
+        }, 3000);
     }
 
     getNotificationColor(type) {
@@ -494,22 +341,6 @@ class AuthSystem {
     }
 
     // Validation functions
-    validateLoginInputs(username, password) {
-        if (!username) {
-            this.showNotification('❌ لطفاً نام کاربری یا ایمیل را وارد کنید', 'error');
-            this.highlightInput('username', 'error');
-            return false;
-        }
-        
-        if (!password) {
-            this.showNotification('❌ لطفاً رمز عبور را وارد کنید', 'error');
-            this.highlightInput('password', 'error');
-            return false;
-        }
-        
-        return true;
-    }
-
     validateRegisterInputs(userData) {
         if (!userData.username || userData.username.length < 3) {
             this.showNotification('❌ نام کاربری باید حداقل 3 کاراکتر باشد', 'error');
@@ -552,57 +383,6 @@ class AuthSystem {
     isValidPhone(phone) {
         const phoneRegex = /^09\d{9}$/;
         return phoneRegex.test(phone);
-    }
-
-    setupPasswordStrength() {
-        const passwordInputs = document.querySelectorAll('input[type="password"]');
-        passwordInputs.forEach(input => {
-            input.addEventListener('input', (e) => {
-                const password = e.target.value;
-                const strength = this.calculatePasswordStrength(password);
-                this.updatePasswordStrengthIndicator(input, strength);
-            });
-        });
-    }
-
-    calculatePasswordStrength(password) {
-        let score = 0;
-        
-        if (password.length >= 8) score++;
-        if (/[a-z]/.test(password)) score++;
-        if (/[A-Z]/.test(password)) score++;
-        if (/[0-9]/.test(password)) score++;
-        if (/[^A-Za-z0-9]/.test(password)) score++;
-        
-        if (score <= 2) return 'weak';
-        if (score <= 3) return 'medium';
-        return 'strong';
-    }
-
-    updatePasswordStrengthIndicator(input, strength) {
-        const container = input.closest('.form-group');
-        let indicator = container.querySelector('.password-strength');
-        
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.className = 'password-strength';
-            container.appendChild(indicator);
-        }
-        
-        const strengthText = {
-            weak: 'ضعیف',
-            medium: 'متوسط',
-            strong: 'قوی'
-        };
-        
-        const strengthColor = {
-            weak: '#e74c3c',
-            medium: '#f39c12',
-            strong: '#27ae60'
-        };
-        
-        indicator.textContent = strengthText[strength];
-        indicator.style.color = strengthColor[strength];
     }
 }
 
