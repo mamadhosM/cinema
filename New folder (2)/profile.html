@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروفایل کاربر - سینما ایران</title>
+    <link rel="stylesheet" href="styles/auth.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-user-circle"></i>
+                    <span>پروفایل من</span>
+                </div>
+                <h1>ویرایش اطلاعات</h1>
+            </div>
+            <form class="auth-form" id="profileForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="profileFirstName" placeholder="نام" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="profileLastName" placeholder="نام خانوادگی" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="profileEmail" placeholder="ایمیل" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="profilePhone" placeholder="شماره تلفن" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="profilePassword" placeholder="رمز عبور جدید (اختیاری)">
+                        <button type="button" class="password-toggle" onclick="togglePassword(this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    ذخیره تغییرات
+                </button>
+            </form>
+            <button class="btn btn-outline btn-full" onclick="logoutProfile()">
+                <i class="fas fa-sign-out-alt"></i>
+                خروج از حساب کاربری
+            </button>
+        </div>
+    </div>
+    <script src="js/profile.js"></script>
+</body>
+</html>

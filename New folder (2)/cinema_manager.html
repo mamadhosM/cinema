@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیر سینما - سینما ایران</title>
+    <link rel="stylesheet" href="styles/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <nav class="admin-nav">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-building"></i>
+                    <span>پنل مدیر سینما</span>
+                </div>
+            </div>
+            <div class="nav-user">
+                <div class="user-info" id="userInfo">
+                    <!-- User info will be loaded here -->
+                </div>
+                <button class="btn btn-outline" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    خروج
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>داشبورد</span>
+                </a>
+                <a href="#schedules" class="nav-item" data-section="schedules">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>برنامه‌های نمایش</span>
+                </a>
+                <a href="#bookings" class="nav-item" data-section="bookings">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>رزروها</span>
+                </a>
+                <a href="#seats" class="nav-item" data-section="seats">
+                    <i class="fas fa-chair"></i>
+                    <span>مدیریت صندلی‌ها</span>
+                </a>
+                <a href="#reports" class="nav-item" data-section="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>گزارشات</span>
+                </a>
+                <a href="#settings" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>تنظیمات سینما</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="admin-section active">
+                <div class="section-header">
+                    <h1>داشبورد سینما</h1>
+                    <p>خلاصه‌ای از وضعیت سینما</p>
+                </div>
+
+                <div class="cinema-info-card">
+                    <div class="cinema-header">
+                        <h2 id="cinemaName">نام سینما</h2>
+                        <span class="cinema-status active">فعال</span>
+                    </div>
+                    <div class="cinema-details">
+                        <p><i class="fas fa-map-marker-alt"></i> <span id="cinemaAddress">آدرس سینما</span></p>
+                        <p><i class="fas fa-phone"></i> <span id="cinemaPhone">شماره تلفن</span></p>
+                        <p><i class="fas fa-envelope"></i> <span id="cinemaEmail">ایمیل سینما</span></p>
+                        <p><i class="fas fa-users"></i> ظرفیت: <span id="cinemaCapacity">0</span> صندلی</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>برنامه‌های امروز</h3>
+                            <span class="stat-number" id="todaySchedules">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>رزروهای امروز</h3>
+                            <span class="stat-number" id="todayBookings">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>درآمد امروز</h3>
+                            <span class="stat-number" id="todayRevenue">0 تومان</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>نرخ اشغال</h3>
+                            <span class="stat-number" id="occupancyRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-charts">
+                    <div class="chart-card">
+                        <h3>رزروهای هفتگی</h3>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <p>نمودار رزروهای هفتگی</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>محبوب‌ترین ساعات</h3>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-bar"></i>
+                            <p>نمودار ساعات محبوب</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activities">
+                    <h3>فعالیت‌های اخیر</h3>
+                    <div class="activities-list" id="recentActivities">
+                        <!-- Recent activities will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedules Section -->
+            <section id="schedules" class="admin-section">
+                <div class="section-header">
+                    <h1>برنامه‌های نمایش</h1>
+                    <button class="btn btn-primary" onclick="showAddScheduleModal()">
+                        <i class="fas fa-plus"></i>
+                        افزودن برنامه جدید
+                    </button>
+                </div>
+
+                <div class="schedules-table-container">
+                    <table class="admin-table" id="schedulesTable">
+                        <thead>
+                            <tr>
+                                <th>فیلم</th>
+                                <th>تاریخ</th>
+                                <th>ساعت</th>
+                                <th>قیمت</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedulesTableBody">
+                            <!-- Schedules will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Bookings Section -->
+            <section id="bookings" class="admin-section">
+                <div class="section-header">
+                    <h1>رزروها</h1>
+                    <div class="booking-filters">
+                        <select id="statusFilter" onchange="filterBookings()">
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="confirmed">تایید شده</option>
+                            <option value="pending">در انتظار</option>
+                            <option value="cancelled">لغو شده</option>
+                        </select>
+                        <input type="date" id="dateFilter" onchange="filterBookings()" placeholder="فیلتر بر اساس تاریخ">
+                    </div>
+                </div>
+
+                <div class="bookings-table-container">
+                    <table class="admin-table" id="bookingsTable">
+                        <thead>
+                            <tr>
+                                <th>کد رزرو</th>
+                                <th>فیلم</th>
+                                <th>کاربر</th>
+                                <th>صندلی‌ها</th>
+                                <th>قیمت کل</th>
+                                <th>تاریخ</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                            <!-- Bookings will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Seats Management Section -->
+            <section id="seats" class="admin-section">
+                <div class="section-header">
+                    <h1>مدیریت صندلی‌ها</h1>
+                    <div class="seat-controls">
+                        <button class="btn btn-outline" onclick="showSeatMap()">
+                            <i class="fas fa-map"></i>
+                            نمایش نقشه صندلی
+                        </button>
+                        <button class="btn btn-primary" onclick="showAddSeatModal()">
+                            <i class="fas fa-plus"></i>
+                            افزودن صندلی
+                        </button>
+                    </div>
+                </div>
+
+                <div class="seats-overview">
+                    <div class="seat-stats">
+                        <div class="seat-stat">
+                            <span class="stat-label">کل صندلی‌ها:</span>
+                            <span class="stat-value" id="totalSeats">0</span>
+                        </div>
+                        <div class="seat-stat">
+                            <span class="stat-label">صندلی‌های VIP:</span>
+                            <span class="stat-value" id="vipSeats">0</span>
+                        </div>
+                        <div class="seat-stat">
+                            <span class="stat-label">صندلی‌های عادی:</span>
+                            <span class="stat-value" id="normalSeats">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="seat-map-container" id="seatMapContainer" style="display: none;">
+                    <div class="screen-indicator">
+                        <i class="fas fa-tv"></i>
+                        <span>صفحه نمایش</span>
+                    </div>
+                    <div class="seats-grid" id="seatsGrid">
+                        <!-- Seats will be generated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="admin-section">
+                <div class="section-header">
+                    <h1>گزارشات سینما</h1>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>گزارش روزانه</h3>
+                        <div class="report-content">
+                            <p>آمار رزروها و درآمد روزانه</p>
+                            <button class="btn btn-outline" onclick="generateDailyReport()">دانلود گزارش</button>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <h3>گزارش هفتگی</h3>
+                        <div class="report-content">
+                            <p>آمار رزروها و درآمد هفتگی</p>
+                            <button class="btn btn-outline" onclick="generateWeeklyReport()">دانلود گزارش</button>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <h3>گزارش ماهانه</h3>
+                        <div class="report-content">
+                            <p>آمار رزروها و درآمد ماهانه</p>
+                            <button class="btn btn-outline" onclick="generateMonthlyReport()">دانلود گزارش</button>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <h3>گزارش صندلی‌ها</h3>
+                        <div class="report-content">
+                            <p>آمار استفاده از صندلی‌ها</p>
+                            <button class="btn btn-outline" onclick="generateSeatsReport()">دانلود گزارش</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="admin-section">
+                <div class="section-header">
+                    <h1>تنظیمات سینما</h1>
+                </div>
+
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>نام سینما</label>
+                        <input type="text" id="cinemaNameInput" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>آدرس</label>
+                        <textarea id="cinemaAddressInput" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>شماره تلفن</label>
+                            <input type="tel" id="cinemaPhoneInput" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ایمیل</label>
+                            <input type="email" id="cinemaEmailInput" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ظرفیت</label>
+                        <input type="number" id="cinemaCapacityInput" class="form-control" min="10" max="200" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>امکانات</label>
+                        <div class="checkbox-group" id="cinemaFeatures">
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="صندلی راحت">
+                                <span>صندلی راحت</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="صدای دالبی">
+                                <span>صدای دالبی</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="وای‌فای رایگان">
+                                <span>وای‌فای رایگان</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="پارکینگ">
+                                <span>پارکینگ</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="کافه">
+                                <span>کافه</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="سالن انتظار لوکس">
+                                <span>سالن انتظار لوکس</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="saveCinemaSettings()">ذخیره تنظیمات</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Schedule Modal -->
+    <div class="modal" id="addScheduleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>افزودن برنامه نمایش جدید</h2>
+                <button class="modal-close" onclick="closeModal('addScheduleModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addScheduleForm">
+                    <div class="form-group">
+                        <label>فیلم</label>
+                        <select id="scheduleMovie" class="form-control" required>
+                            <option value="">انتخاب فیلم</option>
+                            <!-- Movies will be loaded here -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تاریخ</label>
+                            <input type="date" id="scheduleDate" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ساعت</label>
+                            <input type="time" id="scheduleTime" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>قیمت (تومان)</label>
+                        <input type="number" id="schedulePrice" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addScheduleModal')">انصراف</button>
+                <button class="btn btn-primary" onclick="addSchedule()">افزودن برنامه</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Seat Modal -->
+    <div class="modal" id="addSeatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>افزودن صندلی جدید</h2>
+                <button class="modal-close" onclick="closeModal('addSeatModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addSeatForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ردیف</label>
+                            <select id="seatRow" class="form-control" required>
+                                <option value="">انتخاب ردیف</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                                <option value="G">G</option>
+                                <option value="H">H</option>
+                                <option value="I">I</option>
+                                <option value="J">J</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>شماره صندلی</label>
+                            <input type="number" id="seatNumber" class="form-control" min="1" max="20" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>نوع صندلی</label>
+                        <select id="seatType" class="form-control" required>
+                            <option value="normal">عادی</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addSeatModal')">انصراف</button>
+                <button class="btn btn-primary" onclick="addSeat()">افزودن صندلی</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/cinema_manager.js"></script>
+</body>
+</html>

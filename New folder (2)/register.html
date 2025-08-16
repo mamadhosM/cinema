@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت‌نام - سینما ایران</title>
+    <link rel="stylesheet" href="styles/auth.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CryptoJS removed: plain passwords used per request -->
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-background">
+            <div class="auth-overlay"></div>
+        </div>
+        
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-film"></i>
+                    <span>سینما ایران</span>
+                </div>
+                <h1>ثبت‌نام</h1>
+                <p>حساب کاربری جدید ایجاد کنید</p>
+            </div>
+            
+            <form class="auth-form" id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="firstName" placeholder="نام" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="lastName" placeholder="نام خانوادگی" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-id-badge"></i>
+                        <input type="text" id="username" placeholder="نام کاربری" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="ایمیل" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" placeholder="شماره تلفن" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="رمز عبور" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword(this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="strength-text" id="strengthText">قدرت رمز عبور</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" placeholder="تایید رمز عبور" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword(this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <span class="checkmark"></span>
+                        با <a href="#" class="terms-link">شرایط استفاده</a> و <a href="#" class="terms-link">حریم خصوصی</a> موافقم
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="newsletter">
+                        <span class="checkmark"></span>
+                        عضویت در خبرنامه
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">
+                    <span class="btn-text">ثبت‌نام</span>
+                    <span class="btn-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+            </form>
+            
+            <div class="auth-divider">
+                <span>یا</span>
+            </div>
+            
+            <div class="social-login">
+                <button class="btn btn-social btn-google">
+                    <i class="fab fa-google"></i>
+                    ثبت‌نام با گوگل
+                </button>
+                <button class="btn btn-social btn-telegram">
+                    <i class="fab fa-telegram"></i>
+                    ثبت‌نام با تلگرام
+                </button>
+            </div>
+            
+            <div class="auth-footer">
+                <p>قبلاً ثبت‌نام کرده‌اید؟ <a href="login.html">وارد شوید</a></p>
+            </div>
+        </div>
+        
+        <div class="auth-back-link">
+            <a href="index.html">
+                <i class="fas fa-arrow-right"></i>
+                بازگشت به خانه
+            </a>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

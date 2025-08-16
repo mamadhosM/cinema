@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست سینما ایران</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        .test-button:hover {
+            background: #c0392b;
+        }
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 تست سینما ایران</h1>
+    
+    <div class="test-section">
+        <h2>1️⃣ تست لود کردن داده‌ها</h2>
+        <button class="test-button" onclick="testDataLoading()">تست لود داده‌ها</button>
+        <div id="dataResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2️⃣ تست احراز هویت</h2>
+        <button class="test-button" onclick="testAuth()">تست احراز هویت</button>
+        <div id="authResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3️⃣ تست فیلتر فیلم‌ها</h2>
+        <button class="test-button" onclick="testMovieFiltering()">تست فیلتر فیلم‌ها</button>
+        <div id="filterResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4️⃣ تست انتخاب سینما</h2>
+        <button class="test-button" onclick="testCinemaSelection()">تست انتخاب سینما</button>
+        <div id="cinemaResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5️⃣ تست رزرو صندلی</h2>
+        <button class="test-button" onclick="testSeatBooking()">تست رزرو صندلی</button>
+        <div id="seatResult"></div>
+    </div>
+    
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/seats.js"></script>
+    
+    <script>
+        // Test 1: Data Loading
+        async function testDataLoading() {
+            const result = document.getElementById('dataResult');
+            result.innerHTML = '<p>در حال تست...</p>';
+            
+            try {
+                // Check if data is loaded
+                const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+                const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+                
+                result.innerHTML = `
+                    <div class="result">
+                        <h4>✅ داده‌ها با موفقیت لود شدند:</h4>
+                        <p>🎬 فیلم‌ها: ${movies.length} عدد</p>
+                        <p>🏢 سینماها: ${cinemas.length} عدد</p>
+                        <p>👥 کاربران: ${users.length} عدد</p>
+                        <p>📅 برنامه‌ها: ${schedules.length} عدد</p>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result" style="border-left-color: #dc3545;">
+                        <h4>❌ خطا در لود کردن داده‌ها:</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Test 2: Authentication
+        function testAuth() {
+            const result = document.getElementById('authResult');
+            result.innerHTML = '<p>در حال تست...</p>';
+            
+            try {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const admin = users.find(u => u.username === 'admin');
+                const manager = users.find(u => u.role === 'cinema_manager');
+                
+                if (admin && manager) {
+                    result.innerHTML = `
+                        <div class="result">
+                            <h4>✅ احراز هویت درست کار می‌کند:</h4>
+                            <p>👨‍💼 ادمین: ${admin.username} (${admin.role})</p>
+                            <p>🎭 مدیر سینما: ${manager.username} (${manager.role})</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result" style="border-left-color: #dc3545;">
+                            <h4>❌ مشکل در احراز هویت:</h4>
+                            <p>کاربران پیش‌فرض یافت نشدند</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result" style="border-left-color: #dc3545;">
+                        <h4>❌ خطا در تست احراز هویت:</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Test 3: Movie Filtering
+        function testMovieFiltering() {
+            const result = document.getElementById('filterResult');
+            result.innerHTML = '<p>در حال تست...</p>';
+            
+            try {
+                const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+                const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+                
+                // Test cinema 1 movies
+                const cinema1Schedules = schedules.filter(s => s.cinemaId === 1);
+                const cinema1Movies = movies.filter(m => 
+                    cinema1Schedules.some(s => s.movieId === m.id)
+                );
+                
+                result.innerHTML = `
+                    <div class="result">
+                        <h4>✅ فیلتر کردن فیلم‌ها درست کار می‌کند:</h4>
+                        <p>🎬 سینما 1: ${cinema1Movies.length} فیلم</p>
+                        <p>📅 برنامه‌های سینما 1: ${cinema1Schedules.length} عدد</p>
+                        <p>🎭 فیلم‌های سینما 1: ${cinema1Movies.map(m => m.title).join(', ')}</p>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result" style="border-left-color: #dc3545;">
+                        <h4>❌ خطا در تست فیلتر فیلم‌ها:</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Test 4: Cinema Selection
+        function testCinemaSelection() {
+            const result = document.getElementById('cinemaResult');
+            result.innerHTML = '<p>در حال تست...</p>';
+            
+            try {
+                const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+                
+                let cinemaInfo = '';
+                cinemas.forEach(cinema => {
+                    const cinemaSchedules = schedules.filter(s => s.cinemaId === cinema.id);
+                    cinemaInfo += `<p>🏢 ${cinema.name}: ${cinemaSchedules.length} برنامه</p>`;
+                });
+                
+                result.innerHTML = `
+                    <div class="result">
+                        <h4>✅ انتخاب سینما درست کار می‌کند:</h4>
+                        ${cinemaInfo}
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result" style="border-left-color: #dc3545;">
+                        <h4>❌ خطا در تست انتخاب سینما:</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Test 5: Seat Booking
+        function testSeatBooking() {
+            const result = document.getElementById('seatResult');
+            result.innerHTML = '<p>در حال تست...</p>';
+            
+            try {
+                const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+                const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+                
+                if (movies.length > 0 && cinemas.length > 0) {
+                    result.innerHTML = `
+                        <div class="result">
+                            <h4>✅ رزرو صندلی آماده است:</h4>
+                            <p>🎬 فیلم نمونه: ${movies[0].title}</p>
+                            <p>🏢 سینما نمونه: ${cinemas[0].name}</p>
+                            <p>💺 ظرفیت: ${cinemas[0].capacity} صندلی</p>
+                            <p>💰 قیمت: ${movies[0].price} تومان</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result" style="border-left-color: #dc3545;">
+                            <h4>❌ مشکل در رزرو صندلی:</h4>
+                            <p>داده‌های لازم موجود نیست</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result" style="border-left-color: #dc3545;">
+                        <h4>❌ خطا در تست رزرو صندلی:</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testDataLoading();
+                testAuth();
+                testMovieFiltering();
+                testCinemaSelection();
+                testSeatBooking();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سینما ایران - بهترین تجربه سینمایی</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-film"></i>
+                    <span>سینما ایران</span>
+                </div>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">خانه</a>
+                <a href="#movies" class="nav-link">فیلم‌ها</a>
+                <a href="#cinemas" class="nav-link">سینماها</a>
+                <a href="#about" class="nav-link">درباره ما</a>
+                <a href="#contact" class="nav-link">تماس</a>
+            </div>
+            <div class="nav-auth">
+                <a href="login.html" class="btn btn-outline">ورود</a>
+                <a href="register.html" class="btn btn-primary">ثبت‌نام</a>
+            </div>
+            <div class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">بهترین فیلم‌های روز را در سینما ببینید</h1>
+            <p class="hero-subtitle">تجربه‌ای بی‌نظیر با کیفیت بالا و صندلی‌های راحت در بهترین سینماهای ایران</p>
+            <div class="hero-buttons">
+                <a href="#movies" class="btn btn-primary btn-large">مشاهده فیلم‌ها</a>
+                <a href="#cinemas" class="btn btn-outline btn-large">انتخاب سینما</a>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Movies Section -->
+<!-- Movies Section -->
+<section id="movies" class="movies-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">فیلم‌های اکران شده</h2>
+            <p class="section-subtitle">جدیدترین و محبوب‌ترین فیلم‌های روز دنیا</p>
+        </div>
+        
+        <div class="movies-filter">
+            <button class="filter-btn active" data-genre="all">همه</button>
+            <button class="filter-btn" data-genre="اکشن">اکشن</button>
+            <button class="filter-btn" data-genre="درام">درام</button>
+            <button class="filter-btn" data-genre="کمدی">کمدی</button>
+            <button class="filter-btn" data-genre="علمی-تخیلی">علمی-تخیلی</button>
+            <button class="filter-btn" data-genre="ترسناک">ترسناک</button>
+            
+            <div class="cinema-filter">
+                <label for="cinemaSelect">فیلتر بر اساس سینما:</label>
+                <select id="cinemaSelect" onchange="filterMoviesByCinema()">
+                    <option value="all">همه سینماها</option>
+                    <option value="1">سینما الف</option>
+                    <option value="2">سینما سعدی</option>
+                    <option value="3">سینما هنر شهر آفتاب</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="movies-grid" id="moviesGrid">
+            <!-- Movies will be loaded here -->
+        </div>
+
+        <div class="movies-load-more">
+            <button class="btn btn-outline" id="loadMoreBtn">نمایش بیشتر</button>
+        </div>
+    </div>
+</section>
+
+<!-- Cinemas Section -->
+<section id="cinemas" class="cinemas-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">سینماهای ما</h2>
+            <p class="section-subtitle">بهترین سینماها با امکانات مدرن در سراسر ایران</p>
+        </div>
+        
+        <div class="cinemas-grid">
+
+            <!-- سینما الف -->
+            <div class="cinema-card">
+                <div class="cinema-image">
+                    <img src="https://images.unsplash.com/photo-1489599832527-2f8c977cac6a?auto=format&fit=crop&w=1000&q=80" alt="سینما الف">
+                </div>
+                <div class="cinema-info">
+                    <h3>سینما الف</h3>
+                    <p>📍 معالی آباد مجتمع الف</p>
+                    <p>📞 071-36362500</p>
+                    <p>ظرفیت: 30 نفر</p>
+                    <div class="cinema-features">
+                        <span><i class="fas fa-couch"></i> صندلی VIP</span>
+                        <span><i class="fas fa-volume-up"></i> صدای دالبی</span>
+                        <span><i class="fas fa-coffee"></i> کافه</span>
+                        <span><i class="fas fa-parking"></i> پارکینگ</span>
+                    </div>
+                    <a href="#" class="btn btn-primary">انتخاب</a>
+                </div>
+            </div>
+
+            <!-- سینما سعدی -->
+            <div class="cinema-card">
+                <div class="cinema-image">
+                    <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1000&q=80" alt="سینما سعدی">
+                </div>
+                <div class="cinema-info">
+                    <h3>سینما سعدی</h3>
+                    <p>📍 خیابان قصرالدشت، چهارراه سینما سعدی</p>
+                    <p>📞 071-32330791</p>
+                    <p>ظرفیت: 40 نفر</p>
+                    <div class="cinema-features">
+                        <span><i class="fas fa-couch"></i> صندلی راحت</span>
+                        <span><i class="fas fa-volume-up"></i> صدای خوب</span>
+                        <span><i class="fas fa-utensils"></i> بوفه</span>
+                    </div>
+                    <a href="#" class="btn btn-primary">انتخاب</a>
+                </div>
+            </div>
+
+            <!-- سینما هنر شهر آفتاب -->
+            <div class="cinema-card">
+                <div class="cinema-image">
+                    <img src="https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1000&q=80" alt="سینما هنر شهر آفتاب">
+                </div>
+                <div class="cinema-info">
+                    <h3>سینما هنر شهر آفتاب</h3>
+                    <p>📍 گلستان مجتمع خلیج فارس</p>
+                    <p>📞 071-32270777</p>
+                    <p>ظرفیت: 60 نفر</p>
+                    <div class="cinema-features">
+                        <span><i class="fas fa-volume-up"></i> صدای دالبی</span>
+                        <span><i class="fas fa-parking"></i> پارکینگ</span>
+                        <span><i class="fas fa-store"></i> فروشگاه</span>
+                        <span><i class="fas fa-coffee"></i> کافه</span>
+                        <span><i class="fas fa-couch"></i> صندلی VIP</span>
+                        <span><i class="fas fa-wifi"></i> وای‌فای رایگان</span>
+                    </div>
+                    <a href="#" class="btn btn-primary">انتخاب</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <h3>رزرو آنلاین</h3>
+                    <p>رزرو آسان و سریع صندلی از طریق وب‌سایت یا اپلیکیشن</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-couch"></i>
+                    </div>
+                    <h3>صندلی‌های راحت</h3>
+                    <p>صندلی‌های مدرن و راحت برای تجربه‌ای بهتر</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <h3>صوت با کیفیت</h3>
+                    <p>سیستم صوتی پیشرفته برای کیفیت صدای عالی</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h3>وای‌فای رایگان</h3>
+                    <p>دسترسی رایگان به اینترنت در تمام سینماها</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>درباره سینما ایران</h2>
+                    <p>سینما ایران با بیش از 30 سال تجربه، ارائه‌دهنده بهترین فیلم‌های روز دنیا با کیفیت بالا و امکانات مدرن است. ما متعهد به ارائه تجربه‌ای بی‌نظیر برای تمام علاقه‌مندان به سینما هستیم.</p>
+                    <div class="about-stats">
+                        <div class="stat">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">سینما</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">1000+</span>
+                            <span class="stat-label">فیلم</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">1M+</span>
+                            <span class="stat-label">مشتری</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1489599832527-2f8c977cac6a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="سینما ایران">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">تماس با ما</h2>
+                <p class="section-subtitle">برای سوالات و پیشنهادات با ما در تماس باشید</p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h3>آدرس</h3>
+                            <P>شیراز ,شرکت رایانه پردازان حکیم</P>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <h3>تلفن</h3>
+                            <p>071-12345678</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h3>ایمیل</h3>
+                            <p>info@cinema-iran.ir</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h3>ساعات کاری</h3>
+                            <p>شنبه تا چهارشنبه: 7 صبح تا 10 شب</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" id="name" placeholder="نام و نام خانوادگی" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" placeholder="ایمیل" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="subject" placeholder="موضوع" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" rows="5" placeholder="پیام شما" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">ارسال پیام</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-film"></i>
+                        <span>سینما ایران</span>
+                    </div>
+                    <p>بهترین تجربه سینمایی را با ما تجربه کنید</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>لینک‌های مفید</h3>
+                    <ul>
+                        <li><a href="#home">خانه</a></li>
+                        <li><a href="#movies">فیلم‌ها</a></li>
+                        <li><a href="#cinemas">سینماها</a></li>
+                        <li><a href="#about">درباره ما</a></li>
+                        <li><a href="#contact">تماس</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>خدمات</h3>
+                    <ul>
+                        <li><a href="#">رزرو آنلاین</a></li>
+                        <li><a href="#">برنامه‌های ویژه</a></li>
+                        <li><a href="#">کارت‌های تخفیف</a></li>
+                        <li><a href="#">گروه‌های مدرسه</a></li>
+                        <li><a href="#">رویدادهای خاص</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>خبرنامه</h3>
+                    <p>برای اطلاع از آخرین اخبار و تخفیف‌ها عضو شوید</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="ایمیل شما" required>
+                        <button type="submit" class="btn btn-primary">عضویت</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 سینما ایران. تمامی حقوق محفوظ است.</p>
+                <div class="footer-links">
+                    <a href="#">حریم خصوصی</a>
+                    <a href="#">شرایط استفاده</a>
+                    <a href="#">کوکی‌ها</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
