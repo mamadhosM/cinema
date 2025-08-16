@@ -98,10 +98,11 @@ class AuthSystem {
         const hasManagers = parsedUsers.some(u => u.role === 'cinema_manager');
         
         if (!hasAdmin || !hasRep || !hasManagers) {
-            console.log('Some default users missing, adding them...');
-            const defaultUsers = [
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 1,
+            // Add missing default users
+            const missingUsers = [];
+            if (!hasAdmin) {
+                missingUsers.push({
+                    id: Date.now() + 1,
                     username: 'admin',
                     email: 'admin@cinema-iran.ir',
                     firstName: 'مدیر',
@@ -111,9 +112,11 @@ class AuthSystem {
                     role: 'admin',
                     createdAt: new Date().toISOString(),
                     isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 2,
+                });
+            }
+            if (!hasRep) {
+                missingUsers.push({
+                    id: Date.now() + 2,
                     username: 'representative',
                     email: 'rep@cinema-iran.ir',
                     firstName: 'نماینده',
@@ -123,9 +126,11 @@ class AuthSystem {
                     role: 'representative',
                     createdAt: new Date().toISOString(),
                     isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 3,
+                });
+            }
+            if (!hasManagers) {
+                missingUsers.push({
+                    id: Date.now() + 3,
                     username: 'cinema1_manager',
                     email: 'manager1@cinema-iran.ir',
                     firstName: 'احمد',
@@ -136,49 +141,13 @@ class AuthSystem {
                     cinemaId: 1,
                     createdAt: new Date().toISOString(),
                     isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 4,
-                    username: 'cinema2_manager',
-                    email: 'manager2@cinema-iran.ir',
-                    firstName: 'فاطمه',
-                    lastName: 'احمدی',
-                    phone: '09122222222',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 2,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 5,
-                    username: 'cinema3_manager',
-                    email: 'manager3@cinema-iran.ir',
-                    firstName: 'علی',
-                    lastName: 'رضایی',
-                    phone: '09133333333',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 3,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                }
-            ];
-            
-            // Add missing users
-            const usersToAdd = [];
-            if (!hasAdmin) usersToAdd.push(defaultUsers[0]);
-            if (!hasRep) usersToAdd.push(defaultUsers[1]);
-            if (!hasManagers) {
-                usersToAdd.push(defaultUsers[2], defaultUsers[3], defaultUsers[4]);
+                });
             }
             
-            if (usersToAdd.length > 0) {
-                const updatedUsers = [...parsedUsers, ...usersToAdd];
-                localStorage.setItem('users', JSON.stringify(updatedUsers));
-                console.log('Added missing default users');
-                return updatedUsers;
-            }
+            const updatedUsers = [...parsedUsers, ...missingUsers];
+            localStorage.setItem('users', JSON.stringify(updatedUsers));
+            console.log('Missing default users added');
+            return updatedUsers;
         }
         
         return parsedUsers;
@@ -186,68 +155,22 @@ class AuthSystem {
 
     // Load current user from localStorage
     loadCurrentUser() {
-        const user = localStorage.getItem('loggedInUser');
-        return user ? JSON.parse(user) : null;
-    }
-
-    // Hash password using SHA-256 (disabled: now returns plain for storage)
-    hashPassword(password) {
-        // Store plain password to simplify login per user request
-        return password;
-    }
-
-    // Verify password: support both plain and SHA-256 hashed (backward compatible)
-    verifyPassword(password, storedPassword) {
-        try {
-            // 1) Plain comparison (new accounts)
-            if (password === storedPassword) return true;
-            
-            // 2) Backward compatibility: compare SHA-256(password) with storedPassword
-            if (typeof CryptoJS !== 'undefined') {
-                const hashed = CryptoJS.SHA256(password).toString();
-                if (hashed === storedPassword) return true;
-            }
-        } catch (e) {
-            // no-op
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            return JSON.parse(currentUser);
         }
-        return false;
-    }
-
-    // Check password strength
-    checkPasswordStrength(password) {
-        let strength = 0;
-        let feedback = [];
-
-        if (password.length >= 8) strength += 1;
-        else feedback.push('حداقل 8 کاراکتر');
-
-        if (/[a-z]/.test(password)) strength += 1;
-        else feedback.push('حداقل یک حرف کوچک');
-
-        if (/[A-Z]/.test(password)) strength += 1;
-        else feedback.push('حداقل یک حرف بزرگ');
-
-        if (/[0-9]/.test(password)) strength += 1;
-        else feedback.push('حداقل یک عدد');
-
-        if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-        else feedback.push('حداقل یک کاراکتر خاص');
-
-        let strengthText = '';
-        let strengthClass = '';
-
-        if (strength <= 2) {
-            strengthText = 'ضعیف';
-            strengthClass = 'weak';
-        } else if (strength <= 3) {
-            strengthText = 'متوسط';
-            strengthClass = 'medium';
-        } else {
-            strengthText = 'قوی';
-            strengthClass = 'strong';
+        
+        // Fallback to old system
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (loggedInUser) {
+            const user = JSON.parse(loggedInUser);
+            // Migrate to new system
+            localStorage.setItem('currentUser', loggedInUser);
+            localStorage.removeItem('loggedInUser');
+            return user;
         }
-
-        return { strength, strengthText, strengthClass, feedback };
+        
+        return null;
     }
 
     // Setup event listeners
@@ -257,106 +180,56 @@ class AuthSystem {
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
-
+        
         // Register form
         const registerForm = document.getElementById('registerForm');
         if (registerForm) {
             registerForm.addEventListener('submit', (e) => this.handleRegister(e));
         }
-
-        // Password strength checker
-        const passwordInput = document.getElementById('password');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', (e) => this.updatePasswordStrength(e.target.value));
-        }
-
+        
         // Social login buttons
         this.setupSocialLogin();
-    }
-
-    // Setup password strength indicator
-    setupPasswordStrength() {
-        const passwordInput = document.getElementById('password');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', (e) => {
-                this.updatePasswordStrength(e.target.value);
-            });
-        }
-    }
-
-    // Update password strength display
-    updatePasswordStrength(password) {
-        const strengthFill = document.getElementById('strengthFill');
-        const strengthText = document.getElementById('strengthText');
-        
-        if (!strengthFill || !strengthText) return;
-
-        const result = this.checkPasswordStrength(password);
-        
-        // Remove all classes
-        strengthFill.classList.remove('weak', 'medium', 'strong');
-        
-        if (password.length > 0) {
-            strengthFill.classList.add(result.strengthClass);
-            strengthText.textContent = result.strengthText;
-        } else {
-            strengthText.textContent = 'قدرت رمز عبور';
-        }
     }
 
     // Handle login
     async handleLogin(e) {
         e.preventDefault();
         
-        const form = e.target;
-        const submitBtn = form.querySelector('button[type="submit"]');
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
         const rememberMe = document.getElementById('rememberMe')?.checked || false;
-
+        
         // Validate inputs
         if (!this.validateLoginInputs(username, password)) {
             return;
         }
-
+        
         // Show loading state
+        const submitBtn = e.target.querySelector('button[type="submit"]');
         this.setButtonLoading(submitBtn, true);
-
+        
         try {
-            // Simulate API call delay
+            // Simulate API delay
             await this.delay(1000);
-
-            const user = this.authenticateUser(username, password);
+            
+            // Find user
+            const user = this.findUser(username, password);
             
             if (user) {
                 // Login successful
                 this.loginUser(user, rememberMe);
-                this.showNotification('🎉 ورود موفقیت‌آمیز بود! خوش آمدید', 'success');
+                this.showNotification('✅ ورود موفقیت‌آمیز بود', 'success');
                 
-                // Check if user was trying to book a movie
-                const selectedMovie = localStorage.getItem('selectedMovie');
-                let redirectUrl = 'index.html';
-                
-                // Redirect based on role
-                if (user.role === 'admin') {
-                    redirectUrl = 'admin.html';
-                } else if (user.role === 'cinema_manager') {
-                    redirectUrl = 'cinema_manager.html';
-                } else if (user.role === 'representative') {
-                    redirectUrl = 'representative.html';
-                } else if (selectedMovie) {
-                    // User was trying to book a movie, redirect to seats
-                    redirectUrl = 'seats.html';
-                }
-                
+                // Redirect to home page
                 setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1500);
+                    window.location.href = 'index.html';
+                }, 1000);
             } else {
                 // Login failed
                 this.showNotification('❌ نام کاربری یا رمز عبور اشتباه است', 'error');
-                this.shakeForm(form);
+                this.shakeForm(e.target);
             }
+            
         } catch (error) {
             this.showNotification('❌ خطا در ورود. لطفاً دوباره تلاش کنید', 'error');
         } finally {
@@ -364,52 +237,53 @@ class AuthSystem {
         }
     }
 
-    // Handle registration
+    // Handle register
     async handleRegister(e) {
         e.preventDefault();
         
-        const form = e.target;
-        const submitBtn = form.querySelector('button[type="submit"]');
-        
-        // Get form data
-        const formData = this.getFormData(form);
+        const formData = new FormData(e.target);
+        const userData = {
+            username: formData.get('username').trim(),
+            email: formData.get('email').trim(),
+            firstName: formData.get('firstName').trim(),
+            lastName: formData.get('lastName').trim(),
+            phone: formData.get('phone').trim(),
+            password: formData.get('password'),
+            confirmPassword: formData.get('confirmPassword')
+        };
         
         // Validate inputs
-        if (!this.validateRegisterInputs(formData)) {
+        if (!this.validateRegisterInputs(userData)) {
             return;
         }
-
+        
         // Show loading state
+        const submitBtn = e.target.querySelector('button[type="submit"]');
         this.setButtonLoading(submitBtn, true);
-
+        
         try {
-            // Simulate API call delay
+            // Simulate API delay
             await this.delay(1500);
-
-            // Check if user already exists
-            if (this.userExists(formData.username, formData.email)) {
-                this.showNotification('❌ کاربری با این نام کاربری یا ایمیل قبلاً وجود دارد', 'error');
+            
+            // Check if username or email already exists
+            if (this.userExists(userData.username, userData.email)) {
+                this.showNotification('❌ نام کاربری یا ایمیل قبلاً استفاده شده است', 'error');
                 return;
             }
-
-            // Create new user
-            const newUser = this.createUser(formData);
-            this.users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(this.users));
-
-            // Show success message with celebration
-            this.showNotification('🎉 تبریک! ثبت‌نام شما با موفقیت انجام شد', 'success');
             
-            // Show additional success message
+            // Create new user
+            const newUser = this.createUser(userData);
+            
+            // Auto-login after registration
+            this.loginUser(newUser, false);
+            
+            this.showNotification('✅ ثبت‌نام موفقیت‌آمیز بود', 'success');
+            
+            // Redirect to home page
             setTimeout(() => {
-                this.showNotification('✅ اطلاعات شما در سیستم ذخیره شد', 'success');
+                window.location.href = 'index.html';
             }, 1000);
             
-            // Redirect to login page
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2500);
-
         } catch (error) {
             this.showNotification('❌ خطا در ثبت‌نام. لطفاً دوباره تلاش کنید', 'error');
         } finally {
@@ -417,167 +291,42 @@ class AuthSystem {
         }
     }
 
-    // Get form data
-    getFormData(form) {
-        const formData = {};
-        const inputs = form.querySelectorAll('input');
-        
-        inputs.forEach(input => {
-            if (input.type === 'checkbox') {
-                formData[input.id] = input.checked;
-            } else {
-                formData[input.id] = input.value.trim();
-            }
-        });
-        
-        return formData;
-    }
-
-    // Validate login inputs
-    validateLoginInputs(username, password) {
-        if (!username) {
-            this.showNotification('❌ لطفاً نام کاربری را وارد کنید', 'error');
-            this.highlightInput('username', 'error');
-            return false;
-        }
-        
-        if (!password) {
-            this.showNotification('❌ لطفاً رمز عبور را وارد کنید', 'error');
-            this.highlightInput('password', 'error');
-            return false;
-        }
-        
-        return true;
-    }
-
-    // Validate register inputs
-    validateRegisterInputs(formData) {
-        const requiredFields = ['firstName', 'lastName', 'username', 'email', 'phone', 'password', 'confirmPassword'];
-        
-        for (const field of requiredFields) {
-            if (!formData[field]) {
-                this.showNotification(`❌ لطفاً ${this.getFieldLabel(field)} را وارد کنید`, 'error');
-                this.highlightInput(field, 'error');
-                return false;
-            }
-        }
-        
-        // Validate username format
-        if (!this.isValidUsername(formData.username)) {
-            this.showNotification('❌ نام کاربری نامعتبر است (۴ تا ۲۰ کاراکتر؛ فقط حروف، اعداد، نقطه، زیرخط)', 'error');
-            this.highlightInput('username', 'error');
-            return false;
-        }
-        
-        // Validate email format
-        if (!this.isValidEmail(formData.email)) {
-            this.showNotification('❌ فرمت ایمیل صحیح نیست', 'error');
-            this.highlightInput('email', 'error');
-            return false;
-        }
-        
-        // Validate phone format
-        if (!this.isValidPhone(formData.phone)) {
-            this.showNotification('❌ فرمت شماره تلفن صحیح نیست (مثال: 09123456789)', 'error');
-            this.highlightInput('phone', 'error');
-            return false;
-        }
-        
-        // Validate password match
-        if (formData.password !== formData.confirmPassword) {
-            this.showNotification('❌ رمز عبور و تایید آن مطابقت ندارند', 'error');
-            this.highlightInput('confirmPassword', 'error');
-            return false;
-        }
-        
-        // Validate password strength
-        const strength = this.checkPasswordStrength(formData.password);
-        if (strength.strength < 2) { // relax to allow simpler passwords if needed
-            this.showNotification('❌ رمز عبور خیلی ضعیف است', 'error');
-            this.highlightInput('password', 'error');
-            return false;
-        }
-        
-        // Validate terms agreement
-        if (!formData.agreeTerms) {
-            this.showNotification('❌ لطفاً با شرایط استفاده موافقت کنید', 'error');
-            return false;
-        }
-        
-        return true;
-    }
-
-    // Get field label in Persian
-    getFieldLabel(field) {
-        const labels = {
-            firstName: 'نام',
-            lastName: 'نام خانوادگی',
-            username: 'نام کاربری',
-            email: 'ایمیل',
-            phone: 'شماره تلفن',
-            password: 'رمز عبور',
-            confirmPassword: 'تایید رمز عبور'
-        };
-        return labels[field] || field;
-    }
-
-    // Validate email format
-    isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
-
-    // Validate username format (4-20 chars, letters, numbers, underscore, dot)
-    isValidUsername(username) {
-        const usernameRegex = /^[A-Za-z0-9._]{4,20}$/;
-        return usernameRegex.test(username);
-    }
-
-    // Validate phone format
-    isValidPhone(phone) {
-        const phoneRegex = /^09\d{9}$/;
-        return phoneRegex.test(phone);
+    // Find user by username/email and password
+    findUser(username, password) {
+        return this.users.find(user => 
+            (user.username === username || user.email === username) && 
+            user.password === password && 
+            user.isActive
+        );
     }
 
     // Check if user exists
     userExists(username, email) {
-        const uLower = (username || '').toLowerCase();
-        const eLower = (email || '').toLowerCase();
         return this.users.some(user => 
-            (user.username && user.username.toLowerCase() === uLower) ||
-            (user.email && user.email.toLowerCase() === eLower)
+            user.username === username || user.email === email
         );
     }
 
     // Create new user
-    createUser(formData) {
-        return {
-            id: this.users.length + 1,
-            username: formData.username, // use provided username
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            phone: formData.phone,
-            password: formData.password, // store plain text per request
+    createUser(userData) {
+        const newUser = {
+            id: Date.now(),
+            username: userData.username,
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            phone: userData.phone,
+            password: userData.password,
             role: 'user',
             createdAt: new Date().toISOString(),
-            isActive: true,
-            newsletter: formData.newsletter || false
+            isActive: true
         };
-    }
-
-    // Authenticate user
-    authenticateUser(username, password) {
-        const user = this.users.find(u => 
-            (u.username === username || u.email === username) && 
-            u.isActive
-        );
         
-        if (user && this.verifyPassword(password, user.password)) {
-            return user;
-        }
+        // Add to users array
+        this.users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(this.users));
         
-        return null;
+        return newUser;
     }
 
     // Login user
@@ -590,10 +339,10 @@ class AuthSystem {
             localStorage.setItem('rememberMe', 'true');
         }
         
-        // Redirect to home page
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
+        // Update UI on main page if available
+        if (window.checkUserAuth) {
+            window.checkUserAuth();
+        }
     }
 
     // Logout user
@@ -602,7 +351,14 @@ class AuthSystem {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('loggedInUser');
         localStorage.removeItem('rememberMe');
+        
         this.showNotification('👋 با موفقیت خارج شدید', 'info');
+        
+        // Update UI on main page if available
+        if (window.checkUserAuth) {
+            window.checkUserAuth();
+        }
+        
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 1000);
@@ -735,6 +491,118 @@ class AuthSystem {
 
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Validation functions
+    validateLoginInputs(username, password) {
+        if (!username) {
+            this.showNotification('❌ لطفاً نام کاربری یا ایمیل را وارد کنید', 'error');
+            this.highlightInput('username', 'error');
+            return false;
+        }
+        
+        if (!password) {
+            this.showNotification('❌ لطفاً رمز عبور را وارد کنید', 'error');
+            this.highlightInput('password', 'error');
+            return false;
+        }
+        
+        return true;
+    }
+
+    validateRegisterInputs(userData) {
+        if (!userData.username || userData.username.length < 3) {
+            this.showNotification('❌ نام کاربری باید حداقل 3 کاراکتر باشد', 'error');
+            return false;
+        }
+        
+        if (!userData.email || !this.isValidEmail(userData.email)) {
+            this.showNotification('❌ لطفاً ایمیل معتبر وارد کنید', 'error');
+            return false;
+        }
+        
+        if (!userData.firstName || !userData.lastName) {
+            this.showNotification('❌ لطفاً نام و نام خانوادگی را وارد کنید', 'error');
+            return false;
+        }
+        
+        if (!userData.phone || !this.isValidPhone(userData.phone)) {
+            this.showNotification('❌ لطفاً شماره تلفن معتبر وارد کنید', 'error');
+            return false;
+        }
+        
+        if (!userData.password || userData.password.length < 6) {
+            this.showNotification('❌ رمز عبور باید حداقل 6 کاراکتر باشد', 'error');
+            return false;
+        }
+        
+        if (userData.password !== userData.confirmPassword) {
+            this.showNotification('❌ رمز عبور و تکرار آن مطابقت ندارند', 'error');
+            return false;
+        }
+        
+        return true;
+    }
+
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    isValidPhone(phone) {
+        const phoneRegex = /^09\d{9}$/;
+        return phoneRegex.test(phone);
+    }
+
+    setupPasswordStrength() {
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+        passwordInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const password = e.target.value;
+                const strength = this.calculatePasswordStrength(password);
+                this.updatePasswordStrengthIndicator(input, strength);
+            });
+        });
+    }
+
+    calculatePasswordStrength(password) {
+        let score = 0;
+        
+        if (password.length >= 8) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+        
+        if (score <= 2) return 'weak';
+        if (score <= 3) return 'medium';
+        return 'strong';
+    }
+
+    updatePasswordStrengthIndicator(input, strength) {
+        const container = input.closest('.form-group');
+        let indicator = container.querySelector('.password-strength');
+        
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.className = 'password-strength';
+            container.appendChild(indicator);
+        }
+        
+        const strengthText = {
+            weak: 'ضعیف',
+            medium: 'متوسط',
+            strong: 'قوی'
+        };
+        
+        const strengthColor = {
+            weak: '#e74c3c',
+            medium: '#f39c12',
+            strong: '#27ae60'
+        };
+        
+        indicator.textContent = strengthText[strength];
+        indicator.style.color = strengthColor[strength];
     }
 }
 
