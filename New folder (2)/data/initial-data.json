@@ -304,6 +304,146 @@
       "price": "95,000",
       "isActive": true,
       "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "cinemaId": 1,
+      "movieId": 1,
+      "date": "2024-12-21",
+      "time": "16:00",
+      "price": "120,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "cinemaId": 1,
+      "movieId": 1,
+      "date": "2024-12-21",
+      "time": "18:30",
+      "price": "120,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "cinemaId": 1,
+      "movieId": 2,
+      "date": "2024-12-21",
+      "time": "21:00",
+      "price": "150,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "cinemaId": 2,
+      "movieId": 3,
+      "date": "2024-12-21",
+      "time": "17:00",
+      "price": "100,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "cinemaId": 2,
+      "movieId": 3,
+      "date": "2024-12-21",
+      "time": "19:30",
+      "price": "100,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "cinemaId": 2,
+      "movieId": 4,
+      "date": "2024-12-21",
+      "time": "22:00",
+      "price": "110,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "cinemaId": 3,
+      "movieId": 5,
+      "date": "2024-12-21",
+      "time": "16:30",
+      "price": "95,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "cinemaId": 3,
+      "movieId": 5,
+      "date": "2024-12-21",
+      "time": "19:00",
+      "price": "95,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "cinemaId": 1,
+      "movieId": 6,
+      "date": "2024-12-22",
+      "time": "17:00",
+      "price": "130,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 15,
+      "cinemaId": 1,
+      "movieId": 6,
+      "date": "2024-12-22",
+      "time": "19:30",
+      "price": "130,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 16,
+      "cinemaId": 2,
+      "movieId": 7,
+      "date": "2024-12-22",
+      "time": "18:00",
+      "price": "140,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 17,
+      "cinemaId": 2,
+      "movieId": 7,
+      "date": "2024-12-22",
+      "time": "20:30",
+      "price": "140,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 18,
+      "cinemaId": 3,
+      "movieId": 8,
+      "date": "2024-12-22",
+      "time": "17:30",
+      "price": "105,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
+    },
+    {
+      "id": 19,
+      "cinemaId": 3,
+      "movieId": 8,
+      "date": "2024-12-22",
+      "time": "20:00",
+      "price": "105,000",
+      "isActive": true,
+      "createdAt": "2024-12-19T10:00:00.000Z"
     }
   ],
   "bookings": [

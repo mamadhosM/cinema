@@ -583,16 +583,23 @@ class AuthSystem {
     // Login user
     loginUser(user, rememberMe) {
         this.currentUser = user;
-        localStorage.setItem('loggedInUser', JSON.stringify(user));
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('loggedInUser', JSON.stringify(user)); // Keep for backward compatibility
         
         if (rememberMe) {
             localStorage.setItem('rememberMe', 'true');
         }
+        
+        // Redirect to home page
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
     }
 
     // Logout user
     logoutUser() {
         this.currentUser = null;
+        localStorage.removeItem('currentUser');
         localStorage.removeItem('loggedInUser');
         localStorage.removeItem('rememberMe');
         this.showNotification('👋 با موفقیت خارج شدید', 'info');

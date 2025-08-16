@@ -66,6 +66,25 @@
             </div>
         </section>
 
+        <!-- Schedule Selection Section -->
+        <section class="schedule-selection-section" id="scheduleSelectionSection" style="display: none;">
+            <div class="section-header">
+                <h2>انتخاب سانس</h2>
+                <p>سانس مورد نظر خود را انتخاب کنید</p>
+            </div>
+            
+            <div class="schedule-grid" id="scheduleGrid">
+                <!-- Schedules will be loaded here -->
+            </div>
+            
+            <div class="schedule-actions">
+                <button class="btn btn-outline" onclick="resetToCinemaSelection()">
+                    <i class="fas fa-arrow-right"></i>
+                    بازگشت به انتخاب سینما
+                </button>
+            </div>
+        </section>
+
         <!-- Seat Selection Section -->
         <section class="seat-selection-section" id="seatSelectionSection" style="display: none;">
             <div class="cinema-info-display">
@@ -108,6 +127,13 @@
                 <div class="seats-info">
                     <p class="seats-tip">برای انتخاب صندلی روی آن کلیک کنید</p>
                 </div>
+                
+                <div class="seats-actions">
+                    <button class="btn btn-outline" onclick="resetToCinemaSelection()">
+                        <i class="fas fa-arrow-right"></i>
+                        بازگشت به انتخاب سینما
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -147,6 +173,10 @@
                 </div>
                 
                 <div class="booking-actions">
+                    <button class="btn btn-outline" onclick="resetToCinemaSelection()">
+                        <i class="fas fa-arrow-right"></i>
+                        بازگشت به انتخاب سینما
+                    </button>
                     <button class="btn btn-outline" onclick="clearSelection()">
                         <i class="fas fa-times"></i>
                         پاک کردن انتخاب

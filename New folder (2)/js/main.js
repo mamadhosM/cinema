@@ -3,10 +3,12 @@ let currentMovies = [];
 let filteredMovies = [];
 let currentPage = 1;
 const moviesPerPage = 6;
+let currentUser = null;
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
     initializeWebsite();
+    checkUserAuth();
 });
 
 // Initialize website functionality
@@ -278,6 +280,25 @@ function loadMovies() {
     currentMovies = movies.filter(movie => movie.isActive);
     filteredMovies = [...currentMovies];
     displayMovies();
+    
+    // Setup filter buttons
+    setupFilterButtons();
+}
+
+// Setup filter buttons
+function setupFilterButtons() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const genre = this.getAttribute('data-genre');
+            filterMovies(genre);
+        });
+    });
 }
 
 // Display movies in grid
@@ -337,7 +358,42 @@ function updateLoadMoreButton() {
 // Load more movies
 function loadMoreMovies() {
     currentPage++;
-    displayMovies();
+    
+    const moviesGrid = document.getElementById('moviesGrid');
+    const startIndex = (currentPage - 1) * moviesPerPage;
+    const endIndex = startIndex + moviesPerPage;
+    const moviesToShow = filteredMovies.slice(startIndex, endIndex);
+    
+    if (moviesToShow.length === 0) {
+        return;
+    }
+    
+    // Add new movies to existing grid instead of replacing
+    const newMoviesHTML = moviesToShow.map(movie => `
+        <div class="movie-card" data-movie-id="${movie.id}">
+            <div class="movie-image">
+                ${movie.image}
+            </div>
+            <div class="movie-info">
+                <h3 class="movie-title">${movie.title}</h3>
+                <p class="movie-genre">${movie.genre}</p>
+                <div class="movie-rating">
+                    <i class="fas fa-star"></i>
+                    <span>${movie.rating}/5</span>
+                </div>
+                <p class="movie-price">${movie.price} تومان</p>
+                <button class="book-btn" onclick="bookMovie(${movie.id})">
+                    رزرو صندلی
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Append new movies to existing grid
+    moviesGrid.insertAdjacentHTML('beforeend', newMoviesHTML);
+    
+    // Update load more button
+    updateLoadMoreButton();
 }
 
 // Filter movies by genre
@@ -353,11 +409,33 @@ function filterMovies(genre) {
     displayMovies();
 }
 
+// Filter movies by cinema
+function filterMoviesByCinema() {
+    const cinemaSelect = document.getElementById('cinemaSelect');
+    const selectedCinema = cinemaSelect.value;
+    
+    if (selectedCinema === 'all') {
+        filteredMovies = [...currentMovies];
+    } else {
+        // Filter movies that are available in the selected cinema
+        const schedules = JSON.parse(localStorage.getItem('schedules')) || [];
+        const cinemaSchedules = schedules.filter(schedule => 
+            schedule.cinemaId == selectedCinema && schedule.isActive
+        );
+        
+        const availableMovieIds = [...new Set(cinemaSchedules.map(schedule => schedule.movieId))];
+        filteredMovies = currentMovies.filter(movie => 
+            availableMovieIds.includes(movie.id)
+        );
+    }
+    
+    currentPage = 1;
+    displayMovies();
+}
+
 // Book a movie
 function bookMovie(movieId) {
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
-    
-    if (!user) {
+    if (!currentUser) {
         showNotification('برای رزرو صندلی ابتدا وارد شوید', 'warning');
         setTimeout(() => {
             window.location.href = 'login.html';
@@ -410,6 +488,16 @@ function setupEventListeners() {
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', toggleMobileMenu);
     }
+    
+    // Close user dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const userMenu = document.querySelector('.user-menu');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userMenu && userDropdown && !userMenu.contains(e.target)) {
+            userDropdown.classList.remove('active');
+        }
+    });
 }
 
 // Setup scroll effects

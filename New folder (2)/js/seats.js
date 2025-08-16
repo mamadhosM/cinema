@@ -3,6 +3,7 @@ class SeatSelectionSystem {
     constructor() {
         this.selectedMovie = null;
         this.selectedCinema = null;
+        this.selectedSchedule = null;
         this.selectedSeats = [];
         this.seatsData = [];
         this.init();
@@ -97,7 +98,7 @@ class SeatSelectionSystem {
         });
     }
 
-    // Select cinema and show seats
+    // Select cinema and show schedules
     selectCinema(cinemaId) {
         const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
         this.selectedCinema = cinemas.find(c => c.id === cinemaId);
@@ -106,8 +107,125 @@ class SeatSelectionSystem {
 
         console.log(`Cinema ${cinemaId} selected:`, this.selectedCinema);
         
-        // Show available movies for this cinema
-        this.showAvailableMoviesForCinema(cinemaId);
+        // Show schedules for this cinema and movie
+        this.showSchedulesForCinema(cinemaId);
+    }
+    
+    // Show schedules for selected cinema and movie
+    showSchedulesForCinema(cinemaId) {
+        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+        const movieId = this.selectedMovie.id;
+        
+        // Filter schedules for this cinema and movie
+        const availableSchedules = schedules.filter(schedule => 
+            schedule.cinemaId == cinemaId && 
+            schedule.movieId == movieId && 
+            schedule.isActive
+        );
+        
+        if (availableSchedules.length === 0) {
+            // No schedules available
+            this.showNoSchedulesMessage();
+            return;
+        }
+        
+        // Display schedules
+        this.displaySchedules(availableSchedules);
+        
+        // Show schedule selection section
+        document.getElementById('scheduleSelectionSection').style.display = 'block';
+    }
+    
+    // Show message when no schedules are available
+    showNoSchedulesMessage() {
+        const cinemasGrid = document.getElementById('cinemasGrid');
+        const message = document.createElement('div');
+        message.className = 'no-schedules-message';
+        message.innerHTML = `
+            <div class="message-content">
+                <i class="fas fa-calendar-times"></i>
+                <h3>سانسی برای این فیلم در این سینما موجود نیست</h3>
+                <p>لطفاً سینمای دیگری انتخاب کنید</p>
+            </div>
+        `;
+        
+        cinemasGrid.appendChild(message);
+    }
+    
+    // Display available schedules
+    displaySchedules(schedules) {
+        const scheduleGrid = document.getElementById('scheduleGrid');
+        if (!scheduleGrid) return;
+        
+        scheduleGrid.innerHTML = '';
+        
+        // Group schedules by date
+        const schedulesByDate = this.groupSchedulesByDate(schedules);
+        
+        Object.keys(schedulesByDate).forEach(date => {
+            const dateSchedules = schedulesByDate[date];
+            const dateCard = document.createElement('div');
+            dateCard.className = 'date-card';
+            
+            const persianDate = this.convertToPersianDate(date);
+            
+            dateCard.innerHTML = `
+                <div class="date-header">
+                    <h3>${persianDate}</h3>
+                </div>
+                <div class="time-slots">
+                    ${dateSchedules.map(schedule => `
+                        <button class="time-slot" onclick="selectSchedule(${schedule.id})">
+                            <span class="time">${schedule.time}</span>
+                            <span class="price">${schedule.price || this.selectedMovie.price} تومان</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+            
+            scheduleGrid.appendChild(dateCard);
+        });
+    }
+    
+    // Group schedules by date
+    groupSchedulesByDate(schedules) {
+        const grouped = {};
+        schedules.forEach(schedule => {
+            const date = schedule.date;
+            if (!grouped[date]) {
+                grouped[date] = [];
+            }
+            grouped[date].push(schedule);
+        });
+        return grouped;
+    }
+    
+    // Convert date to Persian format
+    convertToPersianDate(dateString) {
+        const date = new Date(dateString);
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        return date.toLocaleDateString('fa-IR', options);
+    }
+    
+    // Select schedule and proceed to seat selection
+    selectSchedule(scheduleId) {
+        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+        this.selectedSchedule = schedules.find(s => s.id === scheduleId);
+        
+        if (!this.selectedSchedule) return;
+        
+        console.log('Schedule selected:', this.selectedSchedule);
+        
+        // Hide schedule selection, show seat selection
+        document.getElementById('scheduleSelectionSection').style.display = 'none';
+        
+        // Proceed to seat selection
+        this.proceedToSeatSelection();
     }
     
     // Show movie selection modal
@@ -168,10 +286,10 @@ class SeatSelectionSystem {
         console.log('Movie selected for cinema:', this.selectedMovie);
     }
     
-    // Proceed to seat selection after movie selection
+    // Proceed to seat selection after schedule selection
     proceedToSeatSelection() {
-        // Hide cinema selection, show seat selection
-        document.querySelector('.cinema-selection-section').style.display = 'none';
+        // Hide schedule selection, show seat selection
+        document.getElementById('scheduleSelectionSection').style.display = 'none';
         document.getElementById('seatSelectionSection').style.display = 'block';
         document.getElementById('bookingSummarySection').style.display = 'block';
 
@@ -191,7 +309,8 @@ class SeatSelectionSystem {
         
         console.log('Proceeding to seat selection with:', {
             movie: this.selectedMovie,
-            cinema: this.selectedCinema
+            cinema: this.selectedCinema,
+            schedule: this.selectedSchedule
         });
     }
 
@@ -295,29 +414,27 @@ class SeatSelectionSystem {
 
     // Update booking summary
     updateSummary() {
-        if (!this.selectedMovie || !this.selectedCinema) {
-            console.log('Cannot update summary: movie or cinema not selected');
+        if (!this.selectedMovie || !this.selectedCinema || !this.selectedSchedule) {
+            console.log('Cannot update summary: movie, cinema, or schedule not selected');
             return;
         }
         
-        const currentDate = new Date();
-        const tomorrow = new Date(currentDate);
-        tomorrow.setDate(currentDate.getDate() + 1);
-
         document.getElementById('summaryMovie').textContent = this.selectedMovie.title;
         document.getElementById('summaryCinema').textContent = this.selectedCinema.name;
-        document.getElementById('summaryDate').textContent = this.formatDate(tomorrow);
-        document.getElementById('summaryTime').textContent = '20:00';
+        document.getElementById('summaryDate').textContent = this.convertToPersianDate(this.selectedSchedule.date);
+        document.getElementById('summaryTime').textContent = this.selectedSchedule.time;
         document.getElementById('summarySeats').textContent = this.selectedSeats.join(', ') || '-';
+        document.getElementById('summaryCount').textContent = this.selectedSeats.length;
         
         // Calculate total price
-        const pricePerSeat = this.parsePrice(this.selectedMovie.price);
+        const pricePerSeat = this.parsePrice(this.selectedSchedule.price || this.selectedMovie.price);
         const totalPrice = this.selectedSeats.length * pricePerSeat;
-        document.getElementById('summaryPrice').textContent = `${totalPrice.toLocaleString()} تومان`;
+        document.getElementById('summaryTotal').textContent = `${totalPrice.toLocaleString()} تومان`;
         
         console.log('Summary updated:', {
             movie: this.selectedMovie.title,
             cinema: this.selectedCinema.name,
+            schedule: this.selectedSchedule,
             seats: this.selectedSeats,
             totalPrice: totalPrice
         });
@@ -331,8 +448,9 @@ class SeatSelectionSystem {
         const hasSeats = this.selectedSeats.length > 0;
         const hasMovie = this.selectedMovie !== null;
         const hasCinema = this.selectedCinema !== null;
+        const hasSchedule = this.selectedSchedule !== null;
         
-        if (hasSeats && hasMovie && hasCinema) {
+        if (hasSeats && hasMovie && hasCinema && hasSchedule) {
             confirmBtn.disabled = false;
             confirmBtn.textContent = `تایید رزرو (${this.selectedSeats.length} صندلی)`;
             confirmBtn.classList.add('btn-primary');
@@ -348,6 +466,7 @@ class SeatSelectionSystem {
             hasSeats,
             hasMovie,
             hasCinema,
+            hasSchedule,
             selectedSeats: this.selectedSeats.length
         });
     }
@@ -378,7 +497,7 @@ class SeatSelectionSystem {
         const navUser = document.getElementById('navUser');
         if (!navUser) return;
 
-        const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
         if (currentUser) {
             navUser.innerHTML = `
                 <span class="user-name">سلام ${currentUser.firstName}!</span>
@@ -412,6 +531,21 @@ class SeatSelectionSystem {
         
         console.log('All seat selections cleared');
     }
+    
+    // Reset to cinema selection
+    resetToCinemaSelection() {
+        this.selectedSchedule = null;
+        this.selectedSeats = [];
+        this.seatsData = [];
+        
+        // Hide all sections, show cinema selection
+        document.getElementById('scheduleSelectionSection').style.display = 'none';
+        document.getElementById('seatSelectionSection').style.display = 'none';
+        document.getElementById('bookingSummarySection').style.display = 'none';
+        document.querySelector('.cinema-selection-section').style.display = 'block';
+        
+        console.log('Reset to cinema selection');
+    }
 
     // Confirm booking
     async confirmBooking() {
@@ -420,7 +554,12 @@ class SeatSelectionSystem {
             return;
         }
 
-        const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        if (!this.selectedSchedule) {
+            this.showNotification('❌ لطفاً سانس مورد نظر را انتخاب کنید', 'error');
+            return;
+        }
+
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
         if (!currentUser) {
             this.showNotification('❌ برای رزرو صندلی ابتدا وارد شوید', 'error');
             setTimeout(() => {
@@ -461,15 +600,17 @@ class SeatSelectionSystem {
 
     // Save booking to localStorage
     saveBooking(bookingCode) {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
         const booking = {
             id: Date.now(),
             code: bookingCode,
             movie: this.selectedMovie,
             cinema: this.selectedCinema,
+            schedule: this.selectedSchedule,
             seats: this.selectedSeats,
-            user: JSON.parse(localStorage.getItem('loggedInUser')),
+            user: currentUser,
             date: new Date().toISOString(),
-            totalPrice: this.selectedSeats.length * this.parsePrice(this.selectedMovie.price),
+            totalPrice: this.selectedSeats.length * this.parsePrice(this.selectedSchedule.price || this.selectedMovie.price),
             status: 'confirmed'
         };
 
@@ -557,40 +698,6 @@ class SeatSelectionSystem {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    // Show available movies for selected cinema
-    showAvailableMoviesForCinema(cinemaId) {
-        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
-        const cinemaSchedules = schedules.filter(s => s.cinemaId === cinemaId && s.isActive);
-        
-        if (cinemaSchedules.length === 0) {
-            this.showNotification('❌ هیچ فیلمی در این سینما در دسترس نیست', 'error');
-            return;
-        }
-        
-        // Get movie IDs for this cinema
-        const movieIds = cinemaSchedules.map(s => s.movieId);
-        
-        // Get movies data
-        const allMovies = JSON.parse(localStorage.getItem('movies') || '[]');
-        const availableMovies = allMovies.filter(movie => movieIds.includes(movie.id));
-        
-        console.log(`Cinema ${cinemaId} has ${availableMovies.length} available movies:`, availableMovies);
-        
-        // Show movie selection if multiple movies available
-        if (availableMovies.length > 1) {
-            this.showMovieSelection(availableMovies);
-        } else if (availableMovies.length === 1) {
-            // Auto-select the only available movie
-            this.selectedMovie = availableMovies[0];
-            this.proceedToSeatSelection();
-        } else {
-            // No movies available in this cinema
-            this.showNotification('❌ هیچ فیلمی در این سینما در دسترس نیست', 'error');
-        }
-        
-        // Update confirm button state
-        this.updateConfirmButton();
-    }
 }
 
 // Global functions
@@ -600,15 +707,23 @@ function selectCinema(cinemaId) {
     }
 }
 
-function selectMovieForCinema(movieId) {
+function selectSchedule(scheduleId) {
     if (window.seatSystem) {
-        window.seatSystem.selectMovieForCinema(movieId);
+        window.seatSystem.selectSchedule(scheduleId);
     }
 }
+
+
 
 function clearSelection() {
     if (window.seatSystem) {
         window.seatSystem.clearSelection();
+    }
+}
+
+function resetToCinemaSelection() {
+    if (window.seatSystem) {
+        window.seatSystem.resetToCinemaSelection();
     }
 }
 
@@ -633,6 +748,7 @@ function logout() {
     if (window.authSystem) {
         window.authSystem.logoutUser();
     } else {
+        localStorage.removeItem('currentUser');
         localStorage.removeItem('loggedInUser');
         window.location.href = 'index.html';
     }

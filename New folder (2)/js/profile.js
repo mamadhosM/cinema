@@ -1,7 +1,7 @@
 // پروفایل کاربر: ویرایش اطلاعات و رمز عبور
 document.addEventListener('DOMContentLoaded', function () {
     // خواندن کاربر فعلی
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    const user = JSON.parse(localStorage.getItem('currentUser')) || JSON.parse(localStorage.getItem('loggedInUser'));
     if (!user) {
         window.location.href = 'login.html';
         return;
@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', function () {
             users[idx].phone = phone;
             if (password.length > 0) users[idx].password = password;
             localStorage.setItem('users', JSON.stringify(users));
-            localStorage.setItem('loggedInUser', JSON.stringify(users[idx]));
+            localStorage.setItem('currentUser', JSON.stringify(users[idx]));
+            localStorage.setItem('loggedInUser', JSON.stringify(users[idx])); // Keep for backward compatibility
             showNotification('تغییرات با موفقیت ذخیره شد', 'success');
         }
     });
@@ -59,6 +60,7 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 function logoutProfile() {
+    localStorage.removeItem('currentUser');
     localStorage.removeItem('loggedInUser');
     window.location.href = 'index.html';
 }
