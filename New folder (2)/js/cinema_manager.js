@@ -25,7 +25,7 @@
 
 	function getCinemaSchedules(cinemaId) {
 		const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
-		return schedules.filter(s => s.cinemaId === cinemaId && s.isActive);
+		return schedules.filter(s => s.cinemaId === cinemaId);
 	}
 
 	function getCinemaBookings(cinemaId) {
@@ -71,6 +71,117 @@
 		if (elOccupancyRate) elOccupancyRate.textContent = occupancyRate + '%';
 	}
 
+	function renderSchedules(user) {
+		const tbody = document.getElementById('schedulesTableBody');
+		if (!tbody) return;
+		const schedules = getCinemaSchedules(user.cinemaId);
+		const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+		tbody.innerHTML = '';
+		if (schedules.length === 0) {
+			tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem">سانسی ثبت نشده است</td></tr>`;
+			return;
+		}
+		schedules.forEach(s => {
+			const movie = movies.find(m => m.id === s.movieId);
+			const row = document.createElement('tr');
+			row.innerHTML = `
+				<td>${movie?.title || '-'}</td>
+				<td>${s.date}</td>
+				<td>${s.time}</td>
+				<td>${s.price}</td>
+				<td><span class="status-badge ${s.isActive ? 'active' : 'inactive'}">${s.isActive ? 'فعال' : 'غیرفعال'}</span></td>
+				<td>
+					<div class="table-actions">
+						<button class="btn btn-sm btn-outline" onclick="cmToggleSchedule(${s.id})"><i class="fas fa-${s.isActive ? 'ban' : 'check'}"></i></button>
+						<button class="btn btn-sm btn-outline" onclick="cmEditSchedule(${s.id})"><i class="fas fa-edit"></i></button>
+						<button class="btn btn-sm btn-danger" onclick="cmDeleteSchedule(${s.id})"><i class="fas fa-trash"></i></button>
+					</div>
+				</td>
+			`;
+			tbody.appendChild(row);
+		});
+	}
+
+	function cmToggleSchedule(id) {
+		const user = JSON.parse(localStorage.getItem('loggedInUser'));
+		if (!user) return;
+		const all = JSON.parse(localStorage.getItem('schedules') || '[]');
+		const idx = all.findIndex(s => s.id === id && s.cinemaId === user.cinemaId);
+		if (idx === -1) return;
+		all[idx].isActive = !all[idx].isActive;
+		localStorage.setItem('schedules', JSON.stringify(all));
+		renderSchedules(user);
+	}
+
+	function cmEditSchedule(id) {
+		const user = JSON.parse(localStorage.getItem('loggedInUser'));
+		if (!user) return;
+		const all = JSON.parse(localStorage.getItem('schedules') || '[]');
+		const idx = all.findIndex(s => s.id === id && s.cinemaId === user.cinemaId);
+		if (idx === -1) return;
+		const s = all[idx];
+		const date = prompt('تاریخ جدید (YYYY-MM-DD):', s.date) || s.date;
+		const time = prompt('ساعت جدید (HH:MM):', s.time) || s.time;
+		const price = prompt('قیمت جدید:', s.price) || s.price;
+		all[idx] = { ...s, date, time, price };
+		localStorage.setItem('schedules', JSON.stringify(all));
+		renderSchedules(user);
+	}
+
+	function cmDeleteSchedule(id) {
+		if (!confirm('حذف این سانس؟')) return;
+		const user = JSON.parse(localStorage.getItem('loggedInUser'));
+		if (!user) return;
+		const all = JSON.parse(localStorage.getItem('schedules') || '[]');
+		const next = all.filter(s => !(s.id === id && s.cinemaId === user.cinemaId));
+		localStorage.setItem('schedules', JSON.stringify(next));
+		renderSchedules(user);
+	}
+
+	function attachGlobalFns() {
+		window.cmToggleSchedule = cmToggleSchedule;
+		window.cmEditSchedule = cmEditSchedule;
+		window.cmDeleteSchedule = cmDeleteSchedule;
+		window.logout = function() { localStorage.removeItem('loggedInUser'); window.location.href = 'index.html'; };
+	}
+
+	function fillSettings(user) {
+		const name = document.getElementById('cinemaNameInput');
+		const address = document.getElementById('cinemaAddressInput');
+		const phone = document.getElementById('cinemaPhoneInput');
+		const email = document.getElementById('cinemaEmailInput');
+		const capacity = document.getElementById('cinemaCapacityInput');
+		const cinema = getCinemaById(user.cinemaId);
+		if (!cinema) return;
+		if (name) name.value = cinema.name;
+		if (address) address.value = cinema.address;
+		if (phone) phone.value = cinema.phone;
+		if (email) email.value = cinema.email || '';
+		if (capacity) capacity.value = cinema.capacity || 0;
+	}
+
+	function wiringSettingsSave(user) {
+		const btn = document.querySelector('#settings button.btn.btn-primary');
+		if (!btn) return;
+		btn.addEventListener('click', function(){
+			const cinema = getCinemaById(user.cinemaId);
+			if (!cinema) return;
+			const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+			const idx = cinemas.findIndex(c => c.id === user.cinemaId);
+			if (idx === -1) return;
+			cinemas[idx] = {
+				...cinema,
+				name: document.getElementById('cinemaNameInput')?.value || cinema.name,
+				address: document.getElementById('cinemaAddressInput')?.value || cinema.address,
+				phone: document.getElementById('cinemaPhoneInput')?.value || cinema.phone,
+				email: document.getElementById('cinemaEmailInput')?.value || cinema.email,
+				capacity: parseInt(document.getElementById('cinemaCapacityInput')?.value || cinema.capacity)
+			};
+			localStorage.setItem('cinemas', JSON.stringify(cinemas));
+			alert('تنظیمات سینما ذخیره شد');
+		});
+	}
+
 	function setupNav() {
 		const navItems = document.querySelectorAll('.nav-item');
 		navItems.forEach(item => {
@@ -90,6 +201,10 @@
 		if (!user) return;
 		fillUserInfo(user);
 		renderDashboard(user);
+		renderSchedules(user);
+		fillSettings(user);
+		wiringSettingsSave(user);
 		setupNav();
+		attachGlobalFns();
 	});
 })();

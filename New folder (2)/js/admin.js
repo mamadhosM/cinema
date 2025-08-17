@@ -14,6 +14,7 @@ class AdminPanel {
         this.loadUsers();
         this.loadBookings();
         this.loadCinemas();
+        this.loadSchedules();
     }
 
     // Check authentication and role
@@ -254,35 +255,14 @@ class AdminPanel {
 
     // Load cinemas
     loadCinemas() {
-        const cinemas = [
-            {
-                id: 1,
-                name: 'سینما مرکزی',
-                address: 'تهران، خیابان ولیعصر',
-                phone: '021-12345678',
-                features: ['صندلی راحت', 'صدای دالبی', 'وای‌فای رایگان']
-            },
-            {
-                id: 2,
-                name: 'سینما پارک',
-                address: 'تهران، پارک ملت',
-                phone: '021-87654321',
-                features: ['صندلی VIP', 'صدای IMAX', 'کافه']
-            },
-            {
-                id: 3,
-                name: 'سینما آفتاب',
-                address: 'تهران، خیابان انقلاب',
-                phone: '021-11223344',
-                features: ['صندلی راحت', 'صدای دالبی', 'پارکینگ']
-            }
-        ];
-
-        const cinemasGrid = document.getElementById('cinemasGrid');
-        if (!cinemasGrid) return;
-
-        cinemasGrid.innerHTML = '';
-
+        const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+        const tbody = document.getElementById('cinemasGrid');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (cinemas.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem">سینما ثبت نشده است</td></tr>`;
+            return;
+        }
         cinemas.forEach(cinema => {
             const cinemaCard = document.createElement('div');
             cinemaCard.className = 'cinema-card';
@@ -302,7 +282,42 @@ class AdminPanel {
                     </button>
                 </div>
             `;
-            cinemasGrid.appendChild(cinemaCard);
+            tbody.appendChild(cinemaCard);
+        });
+    }
+
+    // Load schedules
+    loadSchedules() {
+        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+        const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+        const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+        const tbody = document.getElementById('schedulesTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (schedules.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem">سانسی ثبت نشده است</td></tr>`;
+            return;
+        }
+        schedules.forEach(s => {
+            const movie = movies.find(m => m.id === s.movieId);
+            const cinema = cinemas.find(c => c.id === s.cinemaId);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${movie?.title || '-'}</td>
+                <td>${cinema?.name || '-'}</td>
+                <td>${s.date}</td>
+                <td>${s.time}</td>
+                <td>${s.price}</td>
+                <td><span class="status-badge ${s.isActive ? 'active' : 'inactive'}">${s.isActive ? 'فعال' : 'غیرفعال'}</span></td>
+                <td>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline" onclick="toggleScheduleActive(${s.id})"><i class="fas fa-${s.isActive ? 'ban' : 'check'}"></i></button>
+                        <button class="btn btn-sm btn-outline" onclick="editSchedule(${s.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSchedule(${s.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
         });
     }
 
@@ -502,6 +517,58 @@ function deleteCinema(cinemaId) {
             window.adminPanel.loadCinemas();
         }
     }
+}
+
+function toggleScheduleActive(id) {
+    const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+    const idx = schedules.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    schedules[idx].isActive = !schedules[idx].isActive;
+    localStorage.setItem('schedules', JSON.stringify(schedules));
+    window.adminPanel.loadSchedules();
+    showNotification('وضعیت سانس تغییر کرد', 'success');
+}
+
+function editSchedule(id) {
+    const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+    const idx = schedules.findIndex(s => s.id === id);
+    if (idx === -1) return;
+    const s = schedules[idx];
+    const date = prompt('تاریخ جدید (YYYY-MM-DD):', s.date) || s.date;
+    const time = prompt('ساعت جدید (HH:MM):', s.time) || s.time;
+    const price = prompt('قیمت جدید:', s.price) || s.price;
+    schedules[idx] = { ...s, date, time, price };
+    localStorage.setItem('schedules', JSON.stringify(schedules));
+    window.adminPanel.loadSchedules();
+    showNotification('سانس ویرایش شد', 'success');
+}
+
+function deleteSchedule(id) {
+    if (!confirm('حذف این سانس؟')) return;
+    const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+    const next = schedules.filter(s => s.id !== id);
+    localStorage.setItem('schedules', JSON.stringify(next));
+    window.adminPanel.loadSchedules();
+    showNotification('سانس حذف شد', 'success');
+}
+
+function addSchedule() {
+    const movieId = parseInt(document.getElementById('scheduleMovie')?.value || '');
+    const cinemaId = parseInt(document.getElementById('scheduleCinema')?.value || '');
+    const date = document.getElementById('scheduleDate')?.value || '';
+    const time = document.getElementById('scheduleTime')?.value || '';
+    const price = document.getElementById('schedulePrice')?.value || '';
+    if (!movieId || !cinemaId || !date || !time || !price) {
+        showNotification('همه فیلدها الزامی است', 'error');
+        return;
+    }
+    const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+    const id = (schedules.reduce((mx, s) => Math.max(mx, s.id || 0), 0) + 1) || 1;
+    schedules.push({ id, movieId, cinemaId, date, time, price, isActive: true, createdAt: new Date().toISOString() });
+    localStorage.setItem('schedules', JSON.stringify(schedules));
+    closeModal('addScheduleModal');
+    window.adminPanel.loadSchedules();
+    showNotification('سانس اضافه شد', 'success');
 }
 
 function logout() {

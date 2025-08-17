@@ -52,7 +52,6 @@ class SeatSelectionSystem {
     // Load cinemas from localStorage
     loadCinemas() {
         const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
-        // If a movie is selected, filter cinemas to those that have schedules for it
         const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
         let filtered = cinemas;
         if (this.selectedMovie) {
@@ -62,15 +61,36 @@ class SeatSelectionSystem {
             filtered = cinemas.filter(c => cinemaIds.includes(c.id));
         }
         this.displayCinemas(filtered);
-        // Auto-select cinema from URL if present
+        // Auto-select cinema from URL if present OR from cinema page
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const cinemaIdParam = urlParams.get('cinemaId');
             if (cinemaIdParam) {
                 const cid = parseInt(cinemaIdParam);
-                if (filtered.some(c => c.id === cid)) {
-                    this.selectCinema(cid);
+                const exists = filtered.find(c => c.id === cid) || cinemas.find(c => c.id === cid);
+                if (exists) {
+                    this.selectedCinema = exists;
+                    // reflect selection and proceed if movie is chosen
+                    document.getElementById('selectedCinemaName').textContent = exists.name;
+                    document.getElementById('selectedCinemaAddress').textContent = exists.address;
+                    document.getElementById('selectedCinemaCapacity').textContent = `ظرفیت: ${exists.capacity} صندلی`;
                 }
+            }
+            const movieIdFromUrl = parseInt(urlParams.get('movieId'));
+            if (movieIdFromUrl && !this.selectedMovie) {
+                const allMovies = JSON.parse(localStorage.getItem('movies') || '[]');
+                const m = allMovies.find(x => x.id === movieIdFromUrl);
+                if (m) this.selectedMovie = m;
+            }
+            if (this.selectedCinema && this.selectedMovie) {
+                // directly open seat section since both selected
+                document.querySelector('.cinema-selection-section').style.display = 'none';
+                document.getElementById('seatSelectionSection').style.display = 'block';
+                document.getElementById('bookingSummarySection').style.display = 'block';
+                this.generateSeatsData();
+                this.renderSeats();
+                this.updateSummary();
+                this.updateConfirmButton();
             }
         } catch (e) { /* no-op */ }
     }
@@ -609,68 +629,49 @@ class SeatSelectionSystem {
 
     // Render weekly date and time selectors based on schedules and selection
     renderScheduleSelectors() {
-        // Create container if not exists inside booking summary section
         const summarySection = document.getElementById('bookingSummarySection');
         if (!summarySection) return;
-
-        // If already created, skip
         if (document.getElementById('scheduleSelectors')) return;
-
         const wrapper = document.createElement('div');
         wrapper.id = 'scheduleSelectors';
-        wrapper.className = 'schedule-selectors';
-        wrapper.innerHTML = `
-            <div class="schedule-row">
-                <label>تاریخ:</label>
-                <div id="dateOptions" class="schedule-options"></div>
-            </div>
-            <div class="schedule-row">
-                <label>ساعت:</label>
-                <div id="timeOptions" class="schedule-options"></div>
-            </div>
-        `;
+        wrapper.style.display = 'none';
         summarySection.querySelector('.booking-summary-card')?.prepend(wrapper);
     }
 
-    // Populate dates for selected cinema/movie
     populateDates() {
-        if (!this.selectedCinema || !this.selectedMovie) return;
-        const dateContainer = document.getElementById('dateOptions');
-        if (!dateContainer) return;
+        // unused with modal, kept for compatibility
+    }
+
+    populateTimes() {
+        // unused with modal, kept for compatibility
+    }
+
+    openShowtimes() {
+        if (!this.selectedCinema || !this.selectedMovie) {
+            this.showNotification('ابتدا سینما و فیلم را انتخاب کنید', 'warning');
+            return;
+        }
+        const modal = document.getElementById('showtimesModal');
+        const datesBox = document.getElementById('showtimeDates');
+        const timesBox = document.getElementById('showtimeTimes');
         const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
         const relevant = schedules.filter(s => s.isActive && s.cinemaId === this.selectedCinema.id && s.movieId === this.selectedMovie.id);
         const uniqueDates = Array.from(new Set(relevant.map(s => s.date))).sort();
-
-        dateContainer.innerHTML = uniqueDates.map(dateStr => `
-            <button class="chip" data-date="${dateStr}" onclick="chooseDate('${dateStr}')">${this.formatDate(new Date(dateStr))}</button>
-        `).join('');
-
-        // Auto-select first date
-        if (uniqueDates.length > 0) {
-            this.chooseDate(uniqueDates[0]);
-        }
+        datesBox.innerHTML = uniqueDates.map(d => `<button class="chip" onclick="chooseDate('${d}')">${this.formatDate(new Date(d))}</button>`).join('');
+        timesBox.innerHTML = '';
+        modal.classList.add('show');
     }
 
-    // Populate times once a date is chosen
-    populateTimes(dateStr) {
-        const timeContainer = document.getElementById('timeOptions');
-        if (!timeContainer) return;
-        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
-        const relevant = schedules.filter(s => s.isActive && s.cinemaId === this.selectedCinema.id && s.movieId === this.selectedMovie.id && s.date === dateStr);
-        timeContainer.innerHTML = relevant.map(s => `
-            <button class="chip" data-schedule-id="${s.id}" onclick="chooseSchedule(${s.id})">${s.time}</button>
-        `).join('');
-
-        // Auto-select first time
-        if (relevant.length > 0) {
-            this.chooseSchedule(relevant[0].id);
-        }
+    closeShowtimes() {
+        document.getElementById('showtimesModal')?.classList.remove('show');
     }
 
     chooseDate(dateStr) {
+        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+        const relevant = schedules.filter(s => s.isActive && s.cinemaId === this.selectedCinema.id && s.movieId === this.selectedMovie.id && s.date === dateStr);
+        const timesBox = document.getElementById('showtimeTimes');
+        timesBox.innerHTML = relevant.map(s => `<button class="chip" onclick="chooseSchedule(${s.id})">${s.time}</button>`).join('');
         this.selectedSchedule = { ...(this.selectedSchedule || {}), date: dateStr };
-        this.populateTimes(dateStr);
-        document.getElementById('summaryDate').textContent = this.formatDate(new Date(dateStr));
     }
 
     chooseSchedule(scheduleId) {
@@ -681,6 +682,7 @@ class SeatSelectionSystem {
         document.getElementById('summaryDate').textContent = this.formatDate(new Date(s.date));
         document.getElementById('summaryTime').textContent = s.time;
         this.updateConfirmButton();
+        this.closeShowtimes();
     }
 }
 
@@ -726,15 +728,11 @@ function viewCinema(cinemaId) {
     // Navigate to cinema details page
     window.location.href = `cinema.html?cinemaId=${cinemaId}`;
 }
-function chooseDate(dateStr) {
-    if (window.seatSystem) {
-        window.seatSystem.chooseDate(dateStr);
-    }
+function openShowtimes() {
+    if (window.seatSystem) window.seatSystem.openShowtimes();
 }
-function chooseSchedule(scheduleId) {
-    if (window.seatSystem) {
-        window.seatSystem.chooseSchedule(scheduleId);
-    }
+function closeShowtimes() {
+    if (window.seatSystem) window.seatSystem.closeShowtimes();
 }
 
 // Initialize seat selection system when DOM is loaded
