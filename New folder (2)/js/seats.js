@@ -456,7 +456,7 @@ class SeatSelectionSystem {
         const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
         if (currentUser) {
             navUser.innerHTML = `
-                <span class="user-name">خوش آمدید، ${currentUser.firstName}</span>
+                <span class="user-name">خوش آمدید ${currentUser.firstName} 🌟</span>
                 <a href="profile.html" class="btn btn-outline btn-sm">پروفایل</a>
                 <a href="profile.html#my-bookings" class="btn btn-outline btn-sm">رزروهای من</a>
                 <button class="btn btn-outline btn-sm" onclick="logout()">

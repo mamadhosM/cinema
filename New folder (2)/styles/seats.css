@@ -213,7 +213,7 @@ body {
 }
 .seats-grid {
     display: grid;
-    grid-template-columns: repeat(14, 38px);
+    grid-template-columns: repeat(10, 38px);
     gap: 10px;
     justify-content: center;
     margin-bottom: 2rem;
