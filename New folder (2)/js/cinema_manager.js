@@ -212,6 +212,18 @@
 		});
 	}
 
+	function setupAddScheduleForManager(user){
+		const movieSelect = document.getElementById('scheduleMovie');
+		if (movieSelect){
+			const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+			movieSelect.innerHTML = `<option value=\"\">انتخاب فیلم</option>` + movies.map(m => `<option value=\"${m.id}\">${m.title}</option>`).join('');
+		}
+		const date = document.getElementById('scheduleDate');
+		const time = document.getElementById('scheduleTime');
+		if (date) date.required = true;
+		if (time) time.required = true;
+	}
+
 	document.addEventListener('DOMContentLoaded', function() {
 		const user = requireManager();
 		if (!user) return;
@@ -222,5 +234,6 @@
 		wiringSettingsSave(user);
 		setupNav();
 		attachGlobalFns();
+		setupAddScheduleForManager(user);
 	});
 })();

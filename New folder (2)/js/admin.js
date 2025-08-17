@@ -59,6 +59,17 @@ class AdminPanel {
                 this.navigateToSection(item.getAttribute('data-section'));
             });
         });
+        // Populate add schedule selects
+        const movieSelect = document.getElementById('scheduleMovie');
+        const cinemaSelect = document.getElementById('scheduleCinema');
+        if (movieSelect) {
+            const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+            movieSelect.innerHTML = `<option value="">انتخاب فیلم</option>` + movies.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+        }
+        if (cinemaSelect) {
+            const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+            cinemaSelect.innerHTML = `<option value="">انتخاب سینما</option>` + cinemas.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
     }
 
     // Navigate to section

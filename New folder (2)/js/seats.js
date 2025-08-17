@@ -287,38 +287,20 @@ class SeatSelectionSystem {
     // Generate seats data based on cinema capacity
     generateSeatsData() {
         const capacity = this.selectedCinema.capacity;
-        let rows, cols;
-        
-        // Calculate optimal grid layout
-        if (capacity <= 30) {
-            rows = 6;
-            cols = 5;
-        } else if (capacity <= 40) {
-            rows = 8;
-            cols = 5;
-        } else {
-            rows = 10;
-            cols = 6;
-        }
+        // Always 10 columns per row; compute rows based on capacity
+        const cols = 10;
+        const rows = Math.max(1, Math.ceil(capacity / cols));
 
         const seats = [];
-        const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
         const occupied = this.selectedSchedule?.id ? this.getOccupiedSeats(this.selectedSchedule.id) : new Set();
 
-        for (let row = 0; row < rows; row++) {
+        for (let row = 0; row < rows && row < rowLetters.length; row++) {
             for (let col = 1; col <= cols; col++) {
                 const seatNumber = `${rowLetters[row]}${col}`;
                 const isVip = (row === 0 || row === 1) && (col >= 2 && col <= cols - 1);
                 const isOccupied = occupied.has(seatNumber);
-
-                seats.push({
-                    id: seatNumber,
-                    row: rowLetters[row],
-                    col: col,
-                    isVip: isVip,
-                    isOccupied: isOccupied,
-                    isSelected: false
-                });
+                seats.push({ id: seatNumber, row: rowLetters[row], col, isVip, isOccupied, isSelected: false });
             }
         }
 
@@ -497,6 +479,11 @@ class SeatSelectionSystem {
             this.showNotification('❌ لطفاً حداقل یک صندلی انتخاب کنید', 'error');
             return;
         }
+        if (!this.selectedSchedule || !this.selectedSchedule.time) {
+            this.showNotification('⌛ لطفاً ابتدا سانس را انتخاب کنید', 'warning');
+            this.openShowtimes();
+            return;
+        }
 
         const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
         if (!currentUser) {
@@ -512,12 +499,12 @@ class SeatSelectionSystem {
 
         try {
             // Simulate API call
-            await this.delay(2000);
+            await this.delay(800);
 
             // Generate booking code
             const bookingCode = this.generateBookingCode();
 
-            // Save booking to localStorage
+            // Save or update booking in localStorage
             this.saveBooking(bookingCode);
 
             // Show success modal

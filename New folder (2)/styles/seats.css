@@ -728,3 +728,14 @@ body {
 .booking-actions .btn-outline{
     border-width: 2px;
 }
+
+/* Cinema selection actions */
+.cinema-actions {
+    display: flex;
+    gap: .5rem;
+    justify-content: space-between;
+    margin-top: .75rem;
+}
+.cinema-card .btn {
+    width: 48%;
+}
