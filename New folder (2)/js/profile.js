@@ -40,7 +40,62 @@ document.addEventListener('DOMContentLoaded', function () {
             showNotification('تغییرات با موفقیت ذخیره شد', 'success');
         }
     });
+
+    // Render my bookings
+    renderMyBookings(user.id);
 });
+
+function renderMyBookings(userId) {
+    const list = document.getElementById('myBookingsList');
+    if (!list) return;
+    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]')
+        .filter(b => (b.user?.id || b.userId) === userId)
+        .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    if (bookings.length === 0) {
+        list.innerHTML = `<p style="text-align:center;color:#777">رزروی یافت نشد</p>`;
+        return;
+    }
+
+    list.innerHTML = bookings.map(b => {
+        const movieTitle = b.movie?.title || '-';
+        const cinemaName = b.cinema?.name || '-';
+        const when = new Date(b.date).toLocaleString('fa-IR');
+        const seats = (b.seats || []).join(', ');
+        const price = (b.totalPrice || 0).toLocaleString('fa-IR');
+        return `
+            <div class="booking-item">
+                <div class="booking-main">
+                    <span class="badge">کد: ${b.code || b.id}</span>
+                    <strong>${movieTitle}</strong>
+                    <span>– ${cinemaName}</span>
+                </div>
+                <div class="booking-meta">
+                    <span><i class="fas fa-calendar"></i> ${when}</span>
+                    <span><i class="fas fa-chair"></i> ${seats || '-'}</span>
+                    <span><i class="fas fa-money-bill"></i> ${price} تومان</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    injectBookingsStyles();
+}
+
+function injectBookingsStyles() {
+    if (document.getElementById('bookingStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'bookingStyles';
+    style.textContent = `
+        #myBookingsList { display: flex; flex-direction: column; gap: 12px; }
+        .booking-item { border: 1px solid #eee; border-radius: 10px; padding: 12px; background: #fff; }
+        .booking-main { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .booking-meta { display: flex; align-items: center; gap: 12px; color: #555; font-size: .9rem; }
+        .badge { background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: .8rem; }
+        .booking-meta i { margin-left: 6px; color: #e74c3c; }
+    `;
+    document.head.appendChild(style);
+}
 
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');

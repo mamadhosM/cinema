@@ -18,6 +18,7 @@ function initializeWebsite() {
     setupNavigation();
     setupContactForm();
     setupNewsletterForm();
+    updateNavAuth();
 }
 
 // Load initial data from JSON
@@ -49,10 +50,15 @@ async function loadInitialData() {
             localStorage.setItem('bookings', JSON.stringify(data.bookings));
         }
         
+        // Ensure we have enough weekly schedules for multiple movies per cinema
+        expandSchedulesIfNeeded();
+        
     } catch (error) {
         console.log('Using default data');
         // If JSON file not found, use default data
         loadDefaultData();
+        // Also expand default schedules just in case
+        expandSchedulesIfNeeded();
     }
 }
 
@@ -353,6 +359,93 @@ function filterMovies(genre) {
     displayMovies();
 }
 
+// Filter movies by selected cinema (based on schedules)
+function filterMoviesByCinema() {
+    const select = document.getElementById('cinemaSelect');
+    if (!select) return;
+
+    const value = select.value;
+    const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+    const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+
+    if (value === 'all') {
+        currentMovies = movies.filter(m => m.isActive);
+        filteredMovies = [...currentMovies];
+        currentPage = 1;
+        displayMovies();
+        return;
+    }
+
+    const cinemaId = parseInt(value);
+    const movieIds = Array.from(new Set(schedules
+        .filter(s => s.cinemaId === cinemaId && s.isActive)
+        .map(s => s.movieId)));
+
+    currentMovies = movies.filter(m => m.isActive && movieIds.includes(m.id));
+    filteredMovies = [...currentMovies];
+    currentPage = 1;
+    displayMovies();
+}
+
+// Expand schedules to cover a week with multiple movies and times per cinema
+function expandSchedulesIfNeeded() {
+    try {
+        const cinemas = JSON.parse(localStorage.getItem('cinemas') || '[]');
+        const movies = JSON.parse(localStorage.getItem('movies') || '[]');
+        const existing = JSON.parse(localStorage.getItem('schedules') || '[]');
+
+        // If we already have plenty of schedules, skip
+        if (existing.length >= 30) return;
+
+        const times = ['18:00', '20:30', '22:45'];
+        const today = new Date();
+        const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+        let maxId = existing.reduce((mx, s) => Math.max(mx, s.id || 0), 0);
+        const newSchedules = [...existing];
+
+        cinemas.forEach((cinema, cinemaIdx) => {
+            // Pick 3-4 movies per cinema, rotate by index for variety
+            const pool = movies.filter(m => m.isActive);
+            const picked = [];
+            for (let i = 0; i < Math.min(4, pool.length); i++) {
+                picked.push(pool[(cinemaIdx * 3 + i) % pool.length]);
+            }
+            for (let d = 0; d < 7; d++) {
+                const date = new Date(start);
+                date.setDate(start.getDate() + d);
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dateStr = `${y}-${m}-${day}`;
+
+                picked.forEach((movie, movieIdx) => {
+                    // 2 time slots per picked movie per day (staggered)
+                    const t1 = times[(movieIdx) % times.length];
+                    const t2 = times[(movieIdx + 1) % times.length];
+                    [t1, t2].forEach(timeStr => {
+                        maxId += 1;
+                        newSchedules.push({
+                            id: maxId,
+                            cinemaId: cinema.id,
+                            movieId: movie.id,
+                            date: dateStr,
+                            time: timeStr,
+                            price: movie.price || '120,000',
+                            isActive: true,
+                            createdAt: new Date().toISOString()
+                        });
+                    });
+                });
+            }
+        });
+
+        localStorage.setItem('schedules', JSON.stringify(newSchedules));
+    } catch (e) {
+        // no-op
+    }
+}
+
 // Book a movie
 function bookMovie(movieId) {
     const user = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -525,6 +618,46 @@ function setupNewsletterForm() {
     }
 }
 
+// Update navbar auth area (login/register vs user menu)
+function updateNavAuth() {
+    const navAuth = document.getElementById('navAuth');
+    if (!navAuth) return;
+
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    if (!user) {
+        navAuth.innerHTML = `
+            <a href="login.html" class="btn btn-outline">ورود</a>
+            <a href="register.html" class="btn btn-primary">ثبت‌نام</a>
+        `;
+        return;
+    }
+
+    const roleLinks = [];
+    if (user.role === 'admin') {
+        roleLinks.push(`<a href="admin.html" class="btn btn-outline">پنل مدیریت</a>`);
+    } else if (user.role === 'cinema_manager') {
+        roleLinks.push(`<a href="cinema_manager.html" class="btn btn-outline">پنل مدیر سینما</a>`);
+    }
+
+    navAuth.innerHTML = `
+        ${roleLinks.join('')}
+        <a href="profile.html" class="btn btn-outline">پروفایل</a>
+        <a href="profile.html#my-bookings" class="btn btn-outline">رزروهای من</a>
+        <button class="btn btn-primary" id="logoutBtn">خروج</button>
+    `;
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logoutFromMain);
+    }
+}
+
+function logoutFromMain() {
+    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('rememberMe');
+    window.location.href = 'index.html';
+}
+
 // Toggle mobile menu
 function toggleMobileMenu() {
     const navMenu = document.querySelector('.nav-menu');
@@ -626,7 +759,9 @@ window.cinemaApp = {
     bookMovie,
     searchMovies,
     getMovieDetails,
-    showNotification
+    showNotification,
+    filterMoviesByCinema,
+    logoutFromMain
 };
 
 // Add some interactive features
