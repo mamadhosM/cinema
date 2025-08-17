@@ -80,7 +80,13 @@ class SeatSelectionSystem {
         document.getElementById('selectedCinemaCapacity').textContent = `ظرفیت: ${this.selectedCinema.capacity} صندلی`;
         this.generateSeatsData();
         // Mark selected seats
-        this.seatsData.forEach(s => { if (this.selectedSeats.includes(s.id) && !s.isOccupied) s.isSelected = true; });
+        this.seatsData.forEach(s => {
+            if (this.selectedSeats.includes(s.id)) {
+                s.isSelected = true;
+                s.isMine = true;
+                s.isOccupied = true; // show as occupied but selectable (since selected)
+            }
+        });
         this.renderSeats();
         // Summary
         document.getElementById('summaryDate').textContent = this.formatDate(new Date(this.selectedSchedule.date));
@@ -297,13 +303,21 @@ class SeatSelectionSystem {
         const occupied = this.selectedSchedule?.id ? this.getOccupiedSeats(this.selectedSchedule.id) : new Set();
 
         let created = 0;
+        // Own booked seats to mark as mine
+        let mySeats = new Set();
+        if (this.editBookingId) {
+            const all = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const prev = all.find(b => b.id === this.editBookingId);
+            if (prev && prev.scheduleId === this.selectedSchedule?.id) mySeats = new Set(prev.seats || []);
+        }
         for (let row = 0; row < rows && row < rowLetters.length; row++) {
             for (let col = 1; col <= cols; col++) {
                 if (created >= capacity) break;
                 const seatNumber = `${rowLetters[row]}${col}`;
                 const isVip = (row === 0 || row === 1) && (col >= 2 && col <= cols - 1);
-                const isOccupied = occupied.has(seatNumber);
-                seats.push({ id: seatNumber, row: rowLetters[row], col, isVip, isOccupied, isSelected: false });
+                const isMine = mySeats.has(seatNumber);
+                const isOccupied = occupied.has(seatNumber) || isMine;
+                seats.push({ id: seatNumber, row: rowLetters[row], col, isVip, isOccupied, isSelected: false, isMine });
                 created++;
             }
         }
@@ -341,8 +355,9 @@ class SeatSelectionSystem {
 
     // Get seat CSS class
     getSeatClass(seat) {
+        if (seat.isSelected) return 'selected' + (seat.isMine ? ' mine' : '');
+        if (seat.isOccupied && seat.isMine) return 'occupied mine';
         if (seat.isOccupied) return 'occupied';
-        if (seat.isSelected) return 'selected';
         if (seat.isVip) return 'vip';
         return 'available';
     }
@@ -798,9 +813,20 @@ class SeatSelectionSystem {
     getOccupiedSeats(scheduleId) {
         const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
         const occupied = new Set();
+        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+        const currentSchedule = schedules.find(s => s.id === scheduleId);
         bookings.forEach(b => {
-            if (b.scheduleId === scheduleId && b.status === 'confirmed') {
-                // If editing this booking, skip its current seats so user can modify
+            if (b.status !== 'confirmed') return;
+            let sameShow = false;
+            if (b.scheduleId && b.scheduleId === scheduleId) sameShow = true;
+            if (!sameShow && currentSchedule) {
+                const sameDate = new Date(b.date).toISOString().slice(0,10) === currentSchedule.date;
+                const sameTime = new Date(b.date).toTimeString().slice(0,5) === currentSchedule.time;
+                const sameCinema = (b.cinema?.id) === currentSchedule.cinemaId;
+                const sameMovie = (b.movie?.id) === currentSchedule.movieId;
+                sameShow = sameDate && sameTime && sameCinema && sameMovie;
+            }
+            if (sameShow) {
                 if (this.editBookingId && b.id === this.editBookingId) return;
                 (b.seats || []).forEach(seatId => occupied.add(seatId));
             }
