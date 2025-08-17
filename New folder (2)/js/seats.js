@@ -724,8 +724,12 @@ class SeatSelectionSystem {
         const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
         const relevant = schedules.filter(s => s.isActive && s.cinemaId === this.selectedCinema.id && s.movieId === this.selectedMovie.id);
         const uniqueDates = Array.from(new Set(relevant.map(s => s.date))).sort();
-        datesBox.innerHTML = uniqueDates.map(d => `<button class="chip" data-date="${d}" onclick="chooseDate('${d}')">${this.formatDate(new Date(d))}</button>`).join('');
+        datesBox.innerHTML = uniqueDates.map(d => `<button class="chip" data-date="${d}">${this.formatDate(new Date(d))}</button>`).join('');
         timesBox.innerHTML = '';
+        // attach listeners for dates
+        datesBox.querySelectorAll('.chip').forEach(btn => {
+            btn.addEventListener('click', () => this.chooseDate(btn.getAttribute('data-date')));
+        });
         modal.classList.add('show');
     }
 
@@ -737,12 +741,16 @@ class SeatSelectionSystem {
         const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
         const relevant = schedules.filter(s => s.isActive && s.cinemaId === this.selectedCinema.id && s.movieId === this.selectedMovie.id && s.date === dateStr);
         const timesBox = document.getElementById('showtimeTimes');
-        timesBox.innerHTML = relevant.map(s => `<button class="chip" data-schedule-id="${s.id}" onclick="chooseSchedule(${s.id})">${s.time}</button>`).join('');
+        timesBox.innerHTML = relevant.map(s => `<button class="chip" data-schedule-id="${s.id}">${s.time}</button>`).join('');
         this.selectedSchedule = { ...(this.selectedSchedule || {}), date: dateStr };
         // highlight active date
         document.querySelectorAll('#showtimeDates .chip').forEach(el => el.classList.toggle('active', el.getAttribute('data-date') === dateStr));
         // update summary date preview
         document.getElementById('summaryDate').textContent = this.formatDate(new Date(dateStr));
+        // attach listeners for times
+        timesBox.querySelectorAll('.chip').forEach(btn => {
+            btn.addEventListener('click', () => this.chooseSchedule(parseInt(btn.getAttribute('data-schedule-id'))));
+        });
     }
 
     chooseSchedule(scheduleId) {

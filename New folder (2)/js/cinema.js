@@ -26,29 +26,30 @@
 		const cinema = cinemas.find(c => c.id === cinemaId) || cinemas[0];
 		if (!cinema) { window.location.href = 'index.html#cinemas'; return; }
 		qs('cinemaName').textContent = cinema.name;
-		qs('cinemaAddress').textContent = cinema.address;
-		qs('cinemaPhone').textContent = cinema.phone;
-		qs('cinemaEmail').textContent = cinema.email || '-';
-		qs('cinemaCapacity').textContent = `ظرفیت: ${cinema.capacity} صندلی`;
+		qs('cinemaAddress').textContent = `📍 ${cinema.address}`;
+		qs('cinemaPhone').textContent = `📞 ${cinema.phone}`;
+		qs('cinemaEmail').textContent = `✉️ ${cinema.email || '-'}`;
+		qs('cinemaCapacity').textContent = `👥 ظرفیت: ${cinema.capacity} صندلی`;
 
 		const cinemaSchedules = schedules.filter(s => s.cinemaId === cinema.id && s.isActive);
 		const movieIds = Array.from(new Set(cinemaSchedules.map(s => s.movieId)));
 		const availableMovies = movies.filter(m => m.isActive && movieIds.includes(m.id));
 		const container = qs('moviesList');
 		if (!availableMovies.length) { container.innerHTML = `<p>فیلمی در این سینما موجود نیست.</p>`; return; }
-		container.innerHTML = availableMovies.map(m => {
-			return `
-				<div class="movie-card">
-					<div class="movie-image">${m.image || '🎬'}</div>
-					<div class="movie-info">
-						<h3>${m.title}</h3>
-						<p class="movie-genre">${m.genre}</p>
-						<p class="movie-duration">${m.duration}</p>
-						<div style="margin-top:.5rem"><a class="btn btn-outline" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}">مشاهده سانس‌ها</a> <a class="btn btn-primary" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}">رزرو</a></div>
+		container.innerHTML = availableMovies.map(m => `
+			<div class="movie-card">
+				<div class="movie-image">${m.image || '🎬'}</div>
+				<div class="movie-info">
+					<h3>${m.title}</h3>
+					<p class="movie-genre">${m.genre}</p>
+					<p class="movie-duration">${m.duration}</p>
+					<div style="margin-top:.5rem;display:flex;gap:.5rem;flex-wrap:wrap">
+						<a class="btn btn-outline" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}">مشاهده سانس‌ها</a>
+						<a class="btn btn-primary" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}">رزرو</a>
 					</div>
 				</div>
-			`;
-		}).join('');
+			</div>
+		`).join('');
 
 		injectStyles();
 	});
@@ -57,7 +58,7 @@
 		if (document.getElementById('cinemaPageStyles')) return;
 		const st = document.createElement('style');
 		st.id = 'cinemaPageStyles';
-		st.textContent = `.movie-date-row{display:flex;gap:.5rem;align-items:center;margin:.25rem 0}.movie-date-row .date{min-width:140px;color:#555}.movie-date-row .times{display:flex;gap:.4rem;flex-wrap:wrap}.chip{border:1px solid var(--primary-color);color:var(--primary-color);background:#fff;padding:.25rem .5rem;border-radius:14px}.chip:hover{background:var(--primary-color);color:#fff}`;
+		st.textContent = `.movie-date-row{display:flex;gap:.5rem;align-items:center;margin:.25rem 0}.movie-date-row .date{min-width:140px;color:#555}.movie-date-row .times{display:flex;gap:.4rem;flex-wrap:wrap}.chip{border:1px solid var(--primary-color);color:var(--primary-color);background:#fff;padding:.25rem .5rem;border-radius:14px}.chip:hover{background:var(--primary-color);color:#fff}.cinema-info-display{max-width:900px;margin:0 auto 1rem;box-shadow:var(--shadow)} .cinema-info-display p{display:flex;align-items:center;gap:.5rem;justify-content:center}`;
 		document.head.appendChild(st);
 	}
 })();
