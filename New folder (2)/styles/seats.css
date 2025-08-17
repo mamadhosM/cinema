@@ -306,7 +306,7 @@ body {
 
 .seats-grid {
     display: grid;
-    grid-template-columns: repeat(20, 1fr);
+    grid-template-columns: repeat(10, 38px);
     gap: 8px;
     margin-bottom: 2rem;
     justify-content: center;
@@ -628,7 +628,7 @@ body {
     }
     
     .seats-grid {
-        grid-template-columns: repeat(15, 1fr);
+        grid-template-columns: repeat(10, 1fr);
         gap: 6px;
     }
     
@@ -666,7 +666,7 @@ body {
     }
     
     .seats-grid {
-        grid-template-columns: repeat(12, 1fr);
+        grid-template-columns: repeat(10, 1fr);
         gap: 4px;
     }
     
