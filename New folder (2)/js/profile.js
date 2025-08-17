@@ -107,14 +107,14 @@ function injectBookingsStyles() {
     const style = document.createElement('style');
     style.id = 'bookingStyles';
     style.textContent = `
-        #myBookingsList { display: flex; flex-direction: column; gap: 12px; }
-        .booking-item { border: 1px solid #eee; border-radius: 10px; padding: 12px; background: #fff; }
-        .booking-main { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .booking-meta { display: flex; align-items: center; gap: 12px; color: #555; font-size: .9rem; }
-        .badge { background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: .8rem; }
+        #myBookingsList { display: flex; flex-direction: column; gap: 16px; max-width: 900px; margin: 0 auto; }
+        .booking-item { border: 1px solid #eee; border-radius: 12px; padding: 16px; background: #fff; }
+        .booking-main { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+        .booking-meta { display: flex; align-items: center; gap: 16px; color: #555; font-size: .95rem; flex-wrap: wrap; }
+        .badge { background: #e74c3c; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: .85rem; }
         .booking-meta i { margin-left: 6px; color: #e74c3c; }
-        .booking-actions { margin-top: 8px; display: flex; gap: 8px; }
-        .btn-sm { padding: 6px 10px; font-size: .85rem; }
+        .booking-actions { margin-top: 10px; display: flex; gap: 10px; }
+        .btn-sm { padding: 8px 12px; font-size: .9rem; }
         .btn-danger { background: #e74c3c; color: #fff; border: 2px solid #e74c3c; }
         .btn-danger:hover { background: #c0392b; border-color: #c0392b; }
     `;

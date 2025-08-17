@@ -1094,3 +1094,6 @@ p {
     border-radius: 10px;
     color: var(--text-dark);
 }
+
+/* Top padding for cinema info under fixed header */
+.cinema-info-display{ padding-top: 90px; }
