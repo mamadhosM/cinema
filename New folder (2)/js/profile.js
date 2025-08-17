@@ -40,7 +40,86 @@ document.addEventListener('DOMContentLoaded', function () {
             showNotification('تغییرات با موفقیت ذخیره شد', 'success');
         }
     });
+
+    // Render my bookings
+    renderMyBookings(user.id);
 });
+
+function renderMyBookings(userId) {
+    const list = document.getElementById('myBookingsList');
+    if (!list) return;
+    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]')
+        .filter(b => (b.user?.id || b.userId) === userId)
+        .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    if (bookings.length === 0) {
+        list.innerHTML = `<p style="text-align:center;color:#777">رزروی یافت نشد</p>`;
+        return;
+    }
+
+    list.innerHTML = bookings.map(b => {
+        const movieTitle = b.movie?.title || '-';
+        const cinemaName = b.cinema?.name || '-';
+        const when = new Date(b.date).toLocaleString('fa-IR');
+        const seats = (b.seats || []).join(', ');
+        const price = (b.totalPrice || 0).toLocaleString('fa-IR');
+        return `
+            <div class="booking-item" data-id="${b.id}">
+                <div class="booking-main">
+                    <span class="badge">کد: ${b.code || b.id}</span>
+                    <strong>${movieTitle}</strong>
+                    <span>– ${cinemaName}</span>
+                </div>
+                <div class="booking-meta">
+                    <span><i class="fas fa-calendar"></i> ${when}</span>
+                    <span><i class="fas fa-chair"></i> ${seats || '-'}</span>
+                    <span><i class="fas fa-money-bill"></i> ${price} تومان</span>
+                </div>
+                <div class="booking-actions">
+                    <button class="btn btn-outline btn-sm" onclick="editBooking(${b.id})"><i class="fas fa-edit"></i> ویرایش</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})"><i class="fas fa-trash"></i> حذف</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    injectBookingsStyles();
+}
+
+function deleteBooking(id) {
+    const confirmDelete = confirm('آیا از حذف این رزرو اطمینان دارید؟');
+    if (!confirmDelete) return;
+    const all = JSON.parse(localStorage.getItem('bookings') || '[]');
+    const next = all.filter(b => b.id !== id);
+    localStorage.setItem('bookings', JSON.stringify(next));
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    renderMyBookings(user.id);
+    showNotification('رزرو حذف شد', 'success');
+}
+
+function editBooking(id) {
+    // Redirect to seats page in editing mode for full edit (seats/date/time/cinema)
+    window.location.href = `seats.html?bookingId=${id}`;
+}
+
+function injectBookingsStyles() {
+    if (document.getElementById('bookingStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'bookingStyles';
+    style.textContent = `
+        #myBookingsList { display: flex; flex-direction: column; gap: 16px; max-width: 900px; margin: 0 auto; }
+        .booking-item { border: 1px solid #eee; border-radius: 12px; padding: 16px; background: #fff; }
+        .booking-main { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+        .booking-meta { display: flex; align-items: center; gap: 16px; color: #555; font-size: .95rem; flex-wrap: wrap; }
+        .badge { background: #e74c3c; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: .85rem; }
+        .booking-meta i { margin-left: 6px; color: #e74c3c; }
+        .booking-actions { margin-top: 10px; display: flex; gap: 10px; }
+        .btn-sm { padding: 8px 12px; font-size: .9rem; }
+        .btn-danger { background: #e74c3c; color: #fff; border: 2px solid #e74c3c; }
+        .btn-danger:hover { background: #c0392b; border-color: #c0392b; }
+    `;
+    document.head.appendChild(style);
+}
 
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');

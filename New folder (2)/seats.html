@@ -145,8 +145,11 @@
                         <span class="value" id="summaryTotal">0 تومان</span>
                     </div>
                 </div>
-                
                 <div class="booking-actions">
+                    <button class="btn btn-outline" onclick="openShowtimes()">
+                        <i class="fas fa-calendar-alt"></i>
+                        مشاهده سانس‌ها
+                    </button>
                     <button class="btn btn-outline" onclick="clearSelection()">
                         <i class="fas fa-times"></i>
                         پاک کردن انتخاب
@@ -177,6 +180,20 @@
                     <i class="fas fa-home"></i>
                     بازگشت به خانه
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Showtimes Modal -->
+    <div class="modal" id="showtimesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>انتخاب سانس</h2>
+                <button class="modal-close" onclick="closeShowtimes()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="showtimeDates" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem"></div>
+                <div id="showtimeTimes" style="display:flex;gap:.5rem;flex-wrap:wrap"></div>
             </div>
         </div>
     </div>

@@ -92,6 +92,26 @@ class AuthSystem {
         const parsedUsers = JSON.parse(users);
         console.log('Users loaded from localStorage:', parsedUsers.length, 'users found');
         
+        // Normalize legacy hashed passwords for seed users so login works
+        const seedMap = {
+            'representative': 'rep123',
+            'cinema1_manager': 'manager123',
+            'cinema2_manager': 'manager123',
+            'cinema3_manager': 'manager123',
+            'user1': 'admin', // fallback if needed
+            'user2': 'admin'  // fallback if needed
+        };
+        let mutated = false;
+        parsedUsers.forEach(u => {
+            if (seedMap[u.username] && (u.password || '').length === 64) {
+                u.password = seedMap[u.username];
+                mutated = true;
+            }
+        });
+        if (mutated) {
+            localStorage.setItem('users', JSON.stringify(parsedUsers));
+        }
+        
         // Check if we need to add default users (in case they were overwritten)
         const hasAdmin = parsedUsers.some(u => u.username === 'admin');
         const hasRep = parsedUsers.some(u => u.username === 'representative');
@@ -99,86 +119,20 @@ class AuthSystem {
         
         if (!hasAdmin || !hasRep || !hasManagers) {
             console.log('Some default users missing, adding them...');
-            const defaultUsers = [
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 1,
-                    username: 'admin',
-                    email: 'admin@cinema-iran.ir',
-                    firstName: 'مدیر',
-                    lastName: 'سیستم',
-                    phone: '09123456789',
-                    password: 'admin123',
-                    role: 'admin',
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 2,
-                    username: 'representative',
-                    email: 'rep@cinema-iran.ir',
-                    firstName: 'نماینده',
-                    lastName: 'عمومی',
-                    phone: '09187654321',
-                    password: 'rep123',
-                    role: 'representative',
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 3,
-                    username: 'cinema1_manager',
-                    email: 'manager1@cinema-iran.ir',
-                    firstName: 'احمد',
-                    lastName: 'محمدی',
-                    phone: '09111111111',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 1,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 4,
-                    username: 'cinema2_manager',
-                    email: 'manager2@cinema-iran.ir',
-                    firstName: 'فاطمه',
-                    lastName: 'احمدی',
-                    phone: '09122222222',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 2,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                },
-                {
-                    id: Math.max(...parsedUsers.map(u => u.id)) + 5,
-                    username: 'cinema3_manager',
-                    email: 'manager3@cinema-iran.ir',
-                    firstName: 'علی',
-                    lastName: 'رضایی',
-                    phone: '09133333333',
-                    password: 'manager123',
-                    role: 'cinema_manager',
-                    cinemaId: 3,
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                }
-            ];
-            
-            // Add missing users
-            const usersToAdd = [];
-            if (!hasAdmin) usersToAdd.push(defaultUsers[0]);
-            if (!hasRep) usersToAdd.push(defaultUsers[1]);
+            const maxId = parsedUsers.length > 0 ? Math.max(...parsedUsers.map(u => u.id)) : 0;
+            const defaults = [];
+            if (!hasAdmin) defaults.push({ id: maxId + 1, username: 'admin', email: 'admin@cinema-iran.ir', firstName: 'مدیر', lastName: 'سیستم', phone: '09123456789', password: 'admin123', role: 'admin', createdAt: new Date().toISOString(), isActive: true });
+            if (!hasRep) defaults.push({ id: maxId + 2, username: 'representative', email: 'rep@cinema-iran.ir', firstName: 'نماینده', lastName: 'عمومی', phone: '09187654321', password: 'rep123', role: 'representative', createdAt: new Date().toISOString(), isActive: true });
             if (!hasManagers) {
-                usersToAdd.push(defaultUsers[2], defaultUsers[3], defaultUsers[4]);
+                defaults.push(
+                    { id: maxId + 3, username: 'cinema1_manager', email: 'manager1@cinema-iran.ir', firstName: 'احمد', lastName: 'محمدی', phone: '09111111111', password: 'manager123', role: 'cinema_manager', cinemaId: 1, createdAt: new Date().toISOString(), isActive: true },
+                    { id: maxId + 4, username: 'cinema2_manager', email: 'manager2@cinema-iran.ir', firstName: 'فاطمه', lastName: 'احمدی', phone: '09122222222', password: 'manager123', role: 'cinema_manager', cinemaId: 2, createdAt: new Date().toISOString(), isActive: true },
+                    { id: maxId + 5, username: 'cinema3_manager', email: 'manager3@cinema-iran.ir', firstName: 'علی', lastName: 'رضایی', phone: '09133333333', password: 'manager123', role: 'cinema_manager', cinemaId: 3, createdAt: new Date().toISOString(), isActive: true }
+                );
             }
-            
-            if (usersToAdd.length > 0) {
-                const updatedUsers = [...parsedUsers, ...usersToAdd];
-                localStorage.setItem('users', JSON.stringify(updatedUsers));
-                console.log('Added missing default users');
-                return updatedUsers;
-            }
+            const updatedUsers = [...parsedUsers, ...defaults];
+            localStorage.setItem('users', JSON.stringify(updatedUsers));
+            return updatedUsers;
         }
         
         return parsedUsers;
@@ -343,7 +297,7 @@ class AuthSystem {
                 } else if (user.role === 'cinema_manager') {
                     redirectUrl = 'cinema_manager.html';
                 } else if (user.role === 'representative') {
-                    redirectUrl = 'representative.html';
+                    redirectUrl = 'index.html';
                 } else if (selectedMovie) {
                     // User was trying to book a movie, redirect to seats
                     redirectUrl = 'seats.html';
@@ -617,10 +571,18 @@ class AuthSystem {
 
     // Update UI for logged in user
     updateUIForLoggedInUser() {
-        // This would update the UI to show user info
-        // For now, just redirect if on auth pages
-        if (window.location.pathname.includes('login.html') || 
-            window.location.pathname.includes('register.html')) {
+        // Protect role-based pages
+        const path = window.location.pathname;
+        if (path.includes('admin.html') && this.currentUser.role !== 'admin') {
+            window.location.href = 'index.html';
+            return;
+        }
+        if (path.includes('cinema_manager.html') && this.currentUser.role !== 'cinema_manager') {
+            window.location.href = 'index.html';
+            return;
+        }
+        // Redirect away from auth pages if already logged in
+        if (path.includes('login.html') || path.includes('register.html')) {
             window.location.href = 'index.html';
         }
     }

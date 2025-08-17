@@ -166,7 +166,7 @@ body {
 
 .input-icon input {
     width: 100%;
-    padding: 16px 50px 16px 16px;
+    padding: 16px 50px 16px 50px;
     border: 2px solid #e1e8ed;
     border-radius: 12px;
     font-family: inherit;
@@ -190,6 +190,8 @@ body {
 .password-toggle {
     position: absolute;
     left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
     color: var(--text-light);

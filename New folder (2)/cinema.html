@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>سینما - جزئیات</title>
+	<link rel="stylesheet" href="styles/main.css">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+	<header class="header">
+		<nav class="nav">
+			<div class="nav-brand">
+				<a href="index.html">
+					<div class="logo">
+						<i class="fas fa-film"></i>
+						<span>سینما ایران</span>
+					</div>
+				</a>
+			</div>
+			<div class="nav-menu">
+				<a href="index.html#home" class="nav-link">خانه</a>
+				<a href="index.html#movies" class="nav-link">فیلم‌ها</a>
+				<a href="index.html#cinemas" class="nav-link">سینماها</a>
+			</div>
+			<div class="nav-auth" id="navAuth"></div>
+		</nav>
+	</header>
+
+	<div class="container" style="padding:2rem 0">
+		<section class="cinema-info-display" style="padding-top: 90px;">
+			<h3 id="cinemaName">نام سینما</h3>
+			<div class="cinema-meta" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-top:.5rem">
+				<p id="cinemaAddress">آدرس</p>
+				<p id="cinemaPhone">تلفن</p>
+				<p id="cinemaEmail">ایمیل</p>
+				<p id="cinemaCapacity">ظرفیت</p>
+			</div>
+		</section>
+
+		<section>
+			<div class="section-header">
+				<h2>فیلم‌های در حال نمایش</h2>
+				<p>لیست فیلم‌ها و سانس‌های قابل رزرو در این سینما</p>
+			</div>
+			<div id="moviesList" class="movies-grid"></div>
+		</section>
+	</div>
+
+	<script src="js/cinema.js"></script>
+</body>
+</html>
