@@ -37,13 +37,6 @@
 		const container = qs('moviesList');
 		if (!availableMovies.length) { container.innerHTML = `<p>فیلمی در این سینما موجود نیست.</p>`; return; }
 		container.innerHTML = availableMovies.map(m => {
-			const mSchedules = cinemaSchedules.filter(s => s.movieId === m.id);
-			// group by date
-			const byDate = mSchedules.reduce((acc, s)=>{ (acc[s.date] = acc[s.date] || []).push(s); return acc; }, {});
-			const datesHtml = Object.keys(byDate).sort().map(date => {
-				const chips = byDate[date].map(s => `<a class="chip" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}" title="${formatDateFa(date)} ${s.time}">${s.time}</a>`).join('');
-				return `<div class="movie-date-row"><span class="date">${formatDateFa(date)}</span><div class="times">${chips}</div></div>`;
-			}).join('');
 			return `
 				<div class="movie-card">
 					<div class="movie-image">${m.image || '🎬'}</div>
@@ -51,8 +44,7 @@
 						<h3>${m.title}</h3>
 						<p class="movie-genre">${m.genre}</p>
 						<p class="movie-duration">${m.duration}</p>
-						<div class="dates">${datesHtml}</div>
-						<div style="margin-top:.5rem"><a class="btn btn-primary" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}">رزرو</a></div>
+						<div style="margin-top:.5rem"><a class="btn btn-outline" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}">مشاهده سانس‌ها</a> <a class="btn btn-primary" href="seats.html?cinemaId=${cinema.id}&movieId=${m.id}">رزرو</a></div>
 					</div>
 				</div>
 			`;

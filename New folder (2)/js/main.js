@@ -680,6 +680,7 @@ function updateNavAuth() {
     }
 
     navAuth.innerHTML = `
+        <span class="user-name">خوش آمدید، ${user.firstName || user.username}</span>
         ${roleLinks.join('')}
         <a href="profile.html" class="btn btn-outline">پروفایل</a>
         <a href="profile.html#my-bookings" class="btn btn-outline">رزروهای من</a>

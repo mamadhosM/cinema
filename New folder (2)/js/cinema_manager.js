@@ -143,6 +143,22 @@
 		window.cmEditSchedule = cmEditSchedule;
 		window.cmDeleteSchedule = cmDeleteSchedule;
 		window.logout = function() { localStorage.removeItem('loggedInUser'); window.location.href = 'index.html'; };
+		window.addSchedule = function() {
+			const user = JSON.parse(localStorage.getItem('loggedInUser'));
+			if (!user) return;
+			const movieId = parseInt(document.getElementById('scheduleMovie')?.value || '');
+			const date = document.getElementById('scheduleDate')?.value || '';
+			const time = document.getElementById('scheduleTime')?.value || '';
+			const price = document.getElementById('schedulePrice')?.value || '';
+			if (!movieId || !date || !time || !price) { alert('همه فیلدها الزامی است'); return; }
+			const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+			const id = (schedules.reduce((mx, s) => Math.max(mx, s.id || 0), 0) + 1) || 1;
+			schedules.push({ id, movieId, cinemaId: user.cinemaId, date, time, price, isActive: true, createdAt: new Date().toISOString() });
+			localStorage.setItem('schedules', JSON.stringify(schedules));
+			closeModal && closeModal('addScheduleModal');
+			renderSchedules(user);
+			alert('سانس اضافه شد');
+		};
 	}
 
 	function fillSettings(user) {
