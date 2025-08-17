@@ -123,7 +123,6 @@ class SeatSelectionSystem {
                 if (m) this.selectedMovie = m;
             }
             if (this.selectedCinema && this.selectedMovie) {
-                // directly open seat section since both selected
                 document.querySelector('.cinema-selection-section').style.display = 'none';
                 document.getElementById('seatSelectionSection').style.display = 'block';
                 document.getElementById('bookingSummarySection').style.display = 'block';
@@ -131,6 +130,8 @@ class SeatSelectionSystem {
                 this.renderSeats();
                 this.updateSummary();
                 this.updateConfirmButton();
+                // Open showtimes modal so user picks day/time first and occupancy applies
+                this.openShowtimes();
             }
         } catch (e) { /* no-op */ }
     }
@@ -295,12 +296,15 @@ class SeatSelectionSystem {
         const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
         const occupied = this.selectedSchedule?.id ? this.getOccupiedSeats(this.selectedSchedule.id) : new Set();
 
+        let created = 0;
         for (let row = 0; row < rows && row < rowLetters.length; row++) {
             for (let col = 1; col <= cols; col++) {
+                if (created >= capacity) break;
                 const seatNumber = `${rowLetters[row]}${col}`;
                 const isVip = (row === 0 || row === 1) && (col >= 2 && col <= cols - 1);
                 const isOccupied = occupied.has(seatNumber);
                 seats.push({ id: seatNumber, row: rowLetters[row], col, isVip, isOccupied, isSelected: false });
+                created++;
             }
         }
 
@@ -711,6 +715,9 @@ class SeatSelectionSystem {
             this.showNotification('ابتدا سینما و فیلم را انتخاب کنید', 'warning');
             return;
         }
+        // Ensure we have weekly schedules for this cinema/movie
+        this.ensureWeeklySchedulesForCinemaMovie(this.selectedCinema.id, this.selectedMovie.id);
+
         const modal = document.getElementById('showtimesModal');
         const datesBox = document.getElementById('showtimeDates');
         const timesBox = document.getElementById('showtimeTimes');
@@ -768,6 +775,31 @@ class SeatSelectionSystem {
             }
         });
         return occupied;
+    }
+
+    // Generate weekly schedules for a cinema/movie if missing
+    ensureWeeklySchedulesForCinemaMovie(cinemaId, movieId) {
+        const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const times = ['17:00', '19:30', '22:00'];
+        // Check if there is at least one schedule in coming 7 days for this cinema/movie
+        const hasUpcoming = schedules.some(s => s.cinemaId === cinemaId && s.movieId === movieId && new Date(s.date) >= start && s.isActive);
+        if (hasUpcoming) return;
+        let maxId = schedules.reduce((mx, s) => Math.max(mx, s.id || 0), 0);
+        for (let d = 0; d < 7; d++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + d);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${y}-${m}-${day}`;
+            times.forEach(time => {
+                maxId += 1;
+                schedules.push({ id: maxId, cinemaId, movieId, date: dateStr, time, price: '120,000', isActive: true, createdAt: new Date().toISOString() });
+            });
+        }
+        localStorage.setItem('schedules', JSON.stringify(schedules));
     }
 }
 
