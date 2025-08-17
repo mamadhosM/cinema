@@ -341,6 +341,13 @@ class SeatSelectionSystem {
 
             seatsGrid.appendChild(seatElement);
         });
+        // Inline selection hint
+        const info = document.querySelector('.seats-info');
+        if (info) {
+            const pricePerSeat = this.selectedMovie ? this.parsePrice(this.selectedMovie.price) : 0;
+            const totalPrice = this.selectedSeats.length * pricePerSeat;
+            info.innerHTML = `<p class="seats-tip">${this.selectedSeats.length > 0 ? `انتخاب شده: ${this.selectedSeats.join(', ')} | مجموع: ${totalPrice.toLocaleString()} تومان` : 'برای انتخاب صندلی روی آن کلیک کنید'}</p>`;
+        }
     }
 
     // Get seat CSS class
@@ -411,7 +418,7 @@ class SeatSelectionSystem {
             confirmBtn.classList.remove('btn-disabled');
         } else {
             confirmBtn.disabled = true;
-            confirmBtn.textContent = 'انتخاب صندلی';
+            confirmBtn.textContent = this.selectedSeats.length > 0 ? `تکمیل اطلاعات` : 'انتخاب صندلی';
             confirmBtn.classList.remove('btn-primary');
             confirmBtn.classList.add('btn-disabled');
         }
@@ -446,7 +453,7 @@ class SeatSelectionSystem {
         const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
         if (currentUser) {
             navUser.innerHTML = `
-                <span class="user-name">سلام ${currentUser.firstName}!</span>
+                <span class="user-name">خوش آمدید، ${currentUser.firstName}</span>
                 <a href="profile.html" class="btn btn-outline btn-sm">پروفایل</a>
                 <a href="profile.html#my-bookings" class="btn btn-outline btn-sm">رزروهای من</a>
                 <button class="btn btn-outline btn-sm" onclick="logout()">
