@@ -12,8 +12,10 @@
 	function fillUserInfo(user) {
 		const el = document.getElementById('userInfo');
 		if (el) {
-			el.innerHTML = `<i class="fas fa-user-circle"></i><span>${user.firstName} ${user.lastName}</span>`;
+			el.innerHTML = `<i class="fas fa-user-circle"></i><span>خوش آمدید، ${user.firstName} ${user.lastName}</span>`;
 		}
+		const welcome = document.getElementById('panelWelcome');
+		if (welcome) welcome.textContent = 'شما در پنل مدیر سینما هستید';
 	}
 
 	function getCinemaById(id) {

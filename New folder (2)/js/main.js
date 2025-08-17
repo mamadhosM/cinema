@@ -293,36 +293,60 @@ function displayMovies() {
     const endIndex = startIndex + moviesPerPage;
     const moviesToShow = filteredMovies.slice(startIndex, endIndex);
     
-    if (moviesToShow.length === 0) {
-        moviesGrid.innerHTML = `
-            <div class="no-movies">
-                <i class="fas fa-film"></i>
-                <h3>فیلمی یافت نشد</h3>
-                <p>لطفاً فیلتر دیگری انتخاب کنید</p>
-            </div>
-        `;
-        return;
-    }
-    
-    moviesGrid.innerHTML = moviesToShow.map(movie => `
-        <div class="movie-card" data-movie-id="${movie.id}">
-            <div class="movie-image">
-                ${movie.image}
-            </div>
-            <div class="movie-info">
-                <h3 class="movie-title">${movie.title}</h3>
-                <p class="movie-genre">${movie.genre}</p>
-                <div class="movie-rating">
-                    <i class="fas fa-star"></i>
-                    <span>${movie.rating}/5</span>
+    if (currentPage === 1) {
+        if (moviesToShow.length === 0) {
+            moviesGrid.innerHTML = `
+                <div class="no-movies">
+                    <i class="fas fa-film"></i>
+                    <h3>فیلمی یافت نشد</h3>
+                    <p>لطفاً فیلتر دیگری انتخاب کنید</p>
                 </div>
-                <p class="movie-price">${movie.price} تومان</p>
-                <button class="book-btn" onclick="bookMovie(${movie.id})">
-                    رزرو صندلی
-                </button>
+            `;
+            updateLoadMoreButton();
+            return;
+        }
+        // First page: replace content
+        moviesGrid.innerHTML = moviesToShow.map(movie => `
+            <div class="movie-card" data-movie-id="${movie.id}">
+                <div class="movie-image">
+                    ${movie.image}
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">${movie.title}</h3>
+                    <p class="movie-genre">${movie.genre}</p>
+                    <div class="movie-rating">
+                        <i class="fas fa-star"></i>
+                        <span>${movie.rating}/5</span>
+                    </div>
+                    <p class="movie-price">${movie.price} تومان</p>
+                    <button class="book-btn" onclick="bookMovie(${movie.id})">
+                        رزرو صندلی
+                    </button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    } else {
+        // Next pages: append items below the existing ones
+        moviesGrid.insertAdjacentHTML('beforeend', moviesToShow.map(movie => `
+            <div class="movie-card" data-movie-id="${movie.id}">
+                <div class="movie-image">
+                    ${movie.image}
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">${movie.title}</h3>
+                    <p class="movie-genre">${movie.genre}</p>
+                    <div class="movie-rating">
+                        <i class="fas fa-star"></i>
+                        <span>${movie.rating}/5</span>
+                    </div>
+                    <p class="movie-price">${movie.price} تومان</p>
+                    <button class="book-btn" onclick="bookMovie(${movie.id})">
+                        رزرو صندلی
+                    </button>
+                </div>
+            </div>
+        `).join(''));
+    }
     
     // Update load more button
     updateLoadMoreButton();
@@ -495,6 +519,22 @@ function setupEventListeners() {
             document.getElementById('movies').scrollIntoView({
                 behavior: 'smooth'
             });
+        });
+    }
+
+    // Hero action buttons smooth scroll
+    const heroMoviesBtn = document.querySelector('.hero-buttons a[href="#movies"]');
+    if (heroMoviesBtn) {
+        heroMoviesBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+    const heroCinemasBtn = document.querySelector('.hero-buttons a[href="#cinemas"]');
+    if (heroCinemasBtn) {
+        heroCinemasBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('cinemas')?.scrollIntoView({ behavior: 'smooth' });
         });
     }
     

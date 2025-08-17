@@ -64,7 +64,7 @@ function renderMyBookings(userId) {
         const seats = (b.seats || []).join(', ');
         const price = (b.totalPrice || 0).toLocaleString('fa-IR');
         return `
-            <div class="booking-item">
+            <div class="booking-item" data-id="${b.id}">
                 <div class="booking-main">
                     <span class="badge">کد: ${b.code || b.id}</span>
                     <strong>${movieTitle}</strong>
@@ -75,11 +75,46 @@ function renderMyBookings(userId) {
                     <span><i class="fas fa-chair"></i> ${seats || '-'}</span>
                     <span><i class="fas fa-money-bill"></i> ${price} تومان</span>
                 </div>
+                <div class="booking-actions">
+                    <button class="btn btn-outline btn-sm" onclick="editBooking(${b.id})"><i class="fas fa-edit"></i> ویرایش</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})"><i class="fas fa-trash"></i> حذف</button>
+                </div>
             </div>
         `;
     }).join('');
 
     injectBookingsStyles();
+}
+
+function deleteBooking(id) {
+    const confirmDelete = confirm('آیا از حذف این رزرو اطمینان دارید؟');
+    if (!confirmDelete) return;
+    const all = JSON.parse(localStorage.getItem('bookings') || '[]');
+    const next = all.filter(b => b.id !== id);
+    localStorage.setItem('bookings', JSON.stringify(next));
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    renderMyBookings(user.id);
+    showNotification('رزرو حذف شد', 'success');
+}
+
+function editBooking(id) {
+    const all = JSON.parse(localStorage.getItem('bookings') || '[]');
+    const idx = all.findIndex(b => b.id === id);
+    if (idx === -1) return;
+    const b = all[idx];
+    const newTime = prompt('ساعت جدید را وارد کنید (HH:MM):', (new Date(b.date)).toTimeString().slice(0,5));
+    if (!newTime) return;
+    // Update only time of booking
+    const dateObj = new Date(b.date);
+    const [hh, mm] = newTime.split(':');
+    if (!hh || !mm) return;
+    dateObj.setHours(parseInt(hh), parseInt(mm), 0, 0);
+    b.date = dateObj.toISOString();
+    all[idx] = b;
+    localStorage.setItem('bookings', JSON.stringify(all));
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    renderMyBookings(user.id);
+    showNotification('رزرو ویرایش شد', 'success');
 }
 
 function injectBookingsStyles() {
@@ -93,6 +128,10 @@ function injectBookingsStyles() {
         .booking-meta { display: flex; align-items: center; gap: 12px; color: #555; font-size: .9rem; }
         .badge { background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: .8rem; }
         .booking-meta i { margin-left: 6px; color: #e74c3c; }
+        .booking-actions { margin-top: 8px; display: flex; gap: 8px; }
+        .btn-sm { padding: 6px 10px; font-size: .85rem; }
+        .btn-danger { background: #e74c3c; color: #fff; border: 2px solid #e74c3c; }
+        .btn-danger:hover { background: #c0392b; border-color: #c0392b; }
     `;
     document.head.appendChild(style);
 }
