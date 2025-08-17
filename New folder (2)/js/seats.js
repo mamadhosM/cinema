@@ -489,6 +489,16 @@ class SeatSelectionSystem {
             return;
         }
 
+        // Validate seats are still available
+        if (!this.validateSeatsAvailability()) {
+            this.showNotification('❌ برخی صندلی‌ها هم‌اکنون رزرو شده‌اند. لطفاً دوباره انتخاب کنید', 'error');
+            // Refresh grid with latest occupancy
+            this.generateSeatsData();
+            this.renderSeats();
+            this.updateConfirmButton();
+            return;
+        }
+
         const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
         if (!currentUser) {
             this.showNotification('❌ برای رزرو صندلی ابتدا وارد شوید', 'error');
@@ -502,23 +512,36 @@ class SeatSelectionSystem {
         this.showLoading(true);
 
         try {
-            // Simulate API call
             await this.delay(800);
-
-            // Generate booking code
             const bookingCode = this.generateBookingCode();
-
-            // Save or update booking in localStorage
             this.saveBooking(bookingCode);
-
-            // Show success modal
             this.showSuccessModal(bookingCode);
-
         } catch (error) {
             this.showNotification('❌ خطا در رزرو. لطفاً دوباره تلاش کنید', 'error');
         } finally {
             this.showLoading(false);
         }
+    }
+
+    validateSeatsAvailability() {
+        if (!this.selectedSchedule?.id) return false;
+        const occupied = this.getOccupiedSeats(this.selectedSchedule.id);
+        // In edit mode, allow previously reserved seats by same booking
+        let previousSeats = new Set();
+        if (this.editBookingId) {
+            const all = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const prev = all.find(b => b.id === this.editBookingId);
+            if (prev && prev.scheduleId === this.selectedSchedule.id) {
+                previousSeats = new Set(prev.seats || []);
+            }
+        }
+        // Any selected seat that is occupied by others (i.e., not in previousSeats) invalidates
+        for (const seat of this.selectedSeats) {
+            if (occupied.has(seat) && !previousSeats.has(seat)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Generate unique booking code
