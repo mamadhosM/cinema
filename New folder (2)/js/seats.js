@@ -22,13 +22,18 @@ class SeatSelectionSystem {
     // Load movie data from localStorage
     loadMovieData() {
         const movieData = localStorage.getItem('selectedMovie');
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingIdParam = urlParams.get('bookingId');
+        if (bookingIdParam) {
+            this.loadFromExistingBooking(parseInt(bookingIdParam));
+            return;
+        }
         if (movieData) {
             this.selectedMovie = JSON.parse(movieData);
             this.displayMovieInfo();
             console.log('Movie loaded from localStorage:', this.selectedMovie);
         } else {
             // Try to get movie from URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
             const movieId = urlParams.get('movieId');
             
             if (movieId) {
@@ -47,6 +52,39 @@ class SeatSelectionSystem {
                 window.location.href = 'index.html';
             }
         }
+    }
+
+    loadFromExistingBooking(bookingId) {
+        const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        const b = bookings.find(x => x.id === bookingId);
+        if (!b) { window.location.href = 'profile.html#my-bookings'; return; }
+        this.selectedMovie = b.movie;
+        this.selectedCinema = b.cinema;
+        this.selectedSeats = [...(b.seats || [])];
+        if (b.scheduleId) {
+            const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+            this.selectedSchedule = schedules.find(s => s.id === b.scheduleId) || { date: new Date(b.date).toISOString().slice(0,10), time: new Date(b.date).toTimeString().slice(0,5) };
+        } else {
+            this.selectedSchedule = { date: new Date(b.date).toISOString().slice(0,10), time: new Date(b.date).toTimeString().slice(0,5) };
+        }
+        // Show sections
+        document.querySelector('.cinema-selection-section').style.display = 'none';
+        document.getElementById('seatSelectionSection').style.display = 'block';
+        document.getElementById('bookingSummarySection').style.display = 'block';
+        // Fill UI
+        this.displayMovieInfo();
+        document.getElementById('selectedCinemaName').textContent = this.selectedCinema.name;
+        document.getElementById('selectedCinemaAddress').textContent = this.selectedCinema.address;
+        document.getElementById('selectedCinemaCapacity').textContent = `ظرفیت: ${this.selectedCinema.capacity} صندلی`;
+        this.generateSeatsData();
+        // Mark selected seats
+        this.seatsData.forEach(s => { if (this.selectedSeats.includes(s.id) && !s.isOccupied) s.isSelected = true; });
+        this.renderSeats();
+        // Summary
+        document.getElementById('summaryDate').textContent = this.formatDate(new Date(this.selectedSchedule.date));
+        document.getElementById('summaryTime').textContent = this.selectedSchedule.time;
+        this.updateSummary();
+        this.updateConfirmButton();
     }
 
     // Load cinemas from localStorage
@@ -491,13 +529,38 @@ class SeatSelectionSystem {
 
     // Save booking to localStorage
     saveBooking(bookingCode) {
+        const currentUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingIdParam = urlParams.get('bookingId');
+        if (bookingIdParam) {
+            // Update existing booking
+            const bookingId = parseInt(bookingIdParam);
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const idx = bookings.findIndex(b => b.id === bookingId);
+            if (idx !== -1) {
+                bookings[idx] = {
+                    ...bookings[idx],
+                    movie: this.selectedMovie,
+                    cinema: this.selectedCinema,
+                    seats: this.selectedSeats,
+                    user: currentUser,
+                    date: this.selectedSchedule?.date ? new Date(`${this.selectedSchedule.date}T${this.selectedSchedule.time || '00:00'}`).toISOString() : new Date().toISOString(),
+                    scheduleId: this.selectedSchedule?.id,
+                    totalPrice: this.selectedSeats.length * this.parsePrice(this.selectedMovie.price),
+                    status: 'confirmed'
+                };
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+                return;
+            }
+        }
+        // Create new booking
         const booking = {
             id: Date.now(),
             code: bookingCode,
             movie: this.selectedMovie,
             cinema: this.selectedCinema,
             seats: this.selectedSeats,
-            user: JSON.parse(localStorage.getItem('loggedInUser')),
+            user: currentUser,
             date: this.selectedSchedule?.date ? new Date(`${this.selectedSchedule.date}T${this.selectedSchedule.time || '00:00'}`).toISOString() : new Date().toISOString(),
             scheduleId: this.selectedSchedule?.id,
             totalPrice: this.selectedSeats.length * this.parsePrice(this.selectedMovie.price),

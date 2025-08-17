@@ -98,23 +98,8 @@ function deleteBooking(id) {
 }
 
 function editBooking(id) {
-    const all = JSON.parse(localStorage.getItem('bookings') || '[]');
-    const idx = all.findIndex(b => b.id === id);
-    if (idx === -1) return;
-    const b = all[idx];
-    const newTime = prompt('ساعت جدید را وارد کنید (HH:MM):', (new Date(b.date)).toTimeString().slice(0,5));
-    if (!newTime) return;
-    // Update only time of booking
-    const dateObj = new Date(b.date);
-    const [hh, mm] = newTime.split(':');
-    if (!hh || !mm) return;
-    dateObj.setHours(parseInt(hh), parseInt(mm), 0, 0);
-    b.date = dateObj.toISOString();
-    all[idx] = b;
-    localStorage.setItem('bookings', JSON.stringify(all));
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
-    renderMyBookings(user.id);
-    showNotification('رزرو ویرایش شد', 'success');
+    // Redirect to seats page in editing mode for full edit (seats/date/time/cinema)
+    window.location.href = `seats.html?bookingId=${id}`;
 }
 
 function injectBookingsStyles() {

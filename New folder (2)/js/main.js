@@ -691,6 +691,8 @@ function updateNavAuth() {
         logoutBtn.addEventListener('click', logoutFromMain);
     }
 }
+// Also update on storage change to fix header mismatch across tabs/views
+window.addEventListener('storage', () => updateNavAuth());
 
 function logoutFromMain() {
     localStorage.removeItem('loggedInUser');
@@ -801,7 +803,8 @@ window.cinemaApp = {
     getMovieDetails,
     showNotification,
     filterMoviesByCinema,
-    logoutFromMain
+    logoutFromMain,
+    updateNavAuth
 };
 
 // Add some interactive features
