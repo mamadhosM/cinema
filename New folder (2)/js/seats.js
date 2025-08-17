@@ -6,6 +6,7 @@ class SeatSelectionSystem {
         this.selectedSeats = [];
         this.seatsData = [];
         this.selectedSchedule = null;
+        this.editBookingId = null;
         this.init();
     }
 
@@ -58,6 +59,7 @@ class SeatSelectionSystem {
         const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
         const b = bookings.find(x => x.id === bookingId);
         if (!b) { window.location.href = 'profile.html#my-bookings'; return; }
+        this.editBookingId = bookingId;
         this.selectedMovie = b.movie;
         this.selectedCinema = b.cinema;
         this.selectedSeats = [...(b.seats || [])];
@@ -301,12 +303,13 @@ class SeatSelectionSystem {
 
         const seats = [];
         const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        const occupied = this.selectedSchedule?.id ? this.getOccupiedSeats(this.selectedSchedule.id) : new Set();
 
         for (let row = 0; row < rows; row++) {
             for (let col = 1; col <= cols; col++) {
                 const seatNumber = `${rowLetters[row]}${col}`;
                 const isVip = (row === 0 || row === 1) && (col >= 2 && col <= cols - 1);
-                const isOccupied = Math.random() < 0.3; // 30% chance of being occupied
+                const isOccupied = occupied.has(seatNumber);
 
                 seats.push({
                     id: seatNumber,
@@ -727,7 +730,7 @@ class SeatSelectionSystem {
         const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
         const relevant = schedules.filter(s => s.isActive && s.cinemaId === this.selectedCinema.id && s.movieId === this.selectedMovie.id);
         const uniqueDates = Array.from(new Set(relevant.map(s => s.date))).sort();
-        datesBox.innerHTML = uniqueDates.map(d => `<button class="chip" onclick="chooseDate('${d}')">${this.formatDate(new Date(d))}</button>`).join('');
+        datesBox.innerHTML = uniqueDates.map(d => `<button class="chip" data-date="${d}" onclick="chooseDate('${d}')">${this.formatDate(new Date(d))}</button>`).join('');
         timesBox.innerHTML = '';
         modal.classList.add('show');
     }
@@ -740,8 +743,12 @@ class SeatSelectionSystem {
         const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
         const relevant = schedules.filter(s => s.isActive && s.cinemaId === this.selectedCinema.id && s.movieId === this.selectedMovie.id && s.date === dateStr);
         const timesBox = document.getElementById('showtimeTimes');
-        timesBox.innerHTML = relevant.map(s => `<button class="chip" onclick="chooseSchedule(${s.id})">${s.time}</button>`).join('');
+        timesBox.innerHTML = relevant.map(s => `<button class="chip" data-schedule-id="${s.id}" onclick="chooseSchedule(${s.id})">${s.time}</button>`).join('');
         this.selectedSchedule = { ...(this.selectedSchedule || {}), date: dateStr };
+        // highlight active date
+        document.querySelectorAll('#showtimeDates .chip').forEach(el => el.classList.toggle('active', el.getAttribute('data-date') === dateStr));
+        // update summary date preview
+        document.getElementById('summaryDate').textContent = this.formatDate(new Date(dateStr));
     }
 
     chooseSchedule(scheduleId) {
@@ -751,8 +758,29 @@ class SeatSelectionSystem {
         this.selectedSchedule = s;
         document.getElementById('summaryDate').textContent = this.formatDate(new Date(s.date));
         document.getElementById('summaryTime').textContent = s.time;
+        // highlight active time
+        document.querySelectorAll('#showtimeTimes .chip').forEach(el => el.classList.toggle('active', parseInt(el.getAttribute('data-schedule-id')) === scheduleId));
+        // reset seats and regenerate with occupancy of this schedule
+        this.selectedSeats = [];
+        this.generateSeatsData();
+        this.renderSeats();
+        this.updateSummary();
         this.updateConfirmButton();
         this.closeShowtimes();
+    }
+
+    // Return a Set of occupied seat IDs for the selected schedule based on bookings
+    getOccupiedSeats(scheduleId) {
+        const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        const occupied = new Set();
+        bookings.forEach(b => {
+            if (b.scheduleId === scheduleId && b.status === 'confirmed') {
+                // If editing this booking, skip its current seats so user can modify
+                if (this.editBookingId && b.id === this.editBookingId) return;
+                (b.seats || []).forEach(seatId => occupied.add(seatId));
+            }
+        });
+        return occupied;
     }
 }
 

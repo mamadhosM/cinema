@@ -42,11 +42,11 @@ class AdminPanel {
         if (userInfo) {
             userInfo.innerHTML = `
                 <i class="fas fa-user-circle"></i>
-                <span>خوش آمدید، ${this.currentUser.firstName} ${this.currentUser.lastName}</span>
+                <span>خوش آمدید به پنل مدیریت، ${this.currentUser.firstName} ${this.currentUser.lastName} 🌟</span>
             `;
         }
         const welcome = document.getElementById('panelWelcome');
-        if (welcome) welcome.textContent = 'شما در پنل مدیریت هستید';
+        if (welcome) welcome.textContent = 'مدیریت کامل سیستم در اختیار شماست';
     }
 
     // Setup event listeners
